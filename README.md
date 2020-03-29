@@ -1,4 +1,4 @@
-# halilbaydar-yahoo.com
+# halilbaydar
 CmpE_230_first_project
 CMPE	230	Systems	Programming
 Project	 (due	March	23th)
