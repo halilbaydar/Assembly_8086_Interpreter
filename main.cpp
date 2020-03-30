@@ -7,6 +7,8 @@
 #include "fstream"
 
 
+
+
 using namespace std;
 bool CF, OF, AF, ZF, SF;
 //gsad
