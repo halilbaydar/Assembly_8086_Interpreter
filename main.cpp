@@ -407,7 +407,7 @@ int mov(int i) {
                (line_array[1].at(line_array[1].size() - 1) == ']') && line_array[1].at(0) == 'w') {
         int location = calc_memory_loc(1);
         int value = return_value_of_right_hand_side(2);
-        if (value == -1)
+        if(location==-1 || value == -1)
             return -1;
         if (value < (pow(2, 16))) {
             int head_of_8 = return_value_of_right_hand_side(2) >> 8;
@@ -1694,18 +1694,21 @@ unsigned char *get8Bit(string s) {
 }
 int calc_memory_loc(int arr_num) { // CALCALUTES MEMORY LOCATİON
     string location_of_memory_s = "";
+    int location_of_memory;
     for (int i = 1; i < line_array[arr_num].size(); i++) { // memory location al
         if (line_array[arr_num].at(i) != ']' && line_array[arr_num].at(i) != '[' && line_array[arr_num].at(i) != 'w' &&
             line_array[arr_num].at(i) != 'b') // size-1
             location_of_memory_s += line_array[arr_num].at(i);
     }
     if (location_of_memory_s[location_of_memory_s.size() - 1] == 'h')
-        hec_to_dec(location_of_memory_s);// converting from Hexadec to Dec
+        location_of_memory=hec_to_dec(location_of_memory_s);// converting from Hexadec to Dec
+    else if(location_of_memory_s[location_of_memory_s.size() - 1] == 'd')
+        location_of_memory=stoi(location_of_memory_s.substr(0,location_of_memory_s.size()-2));
+    else
+        location_of_memory = stoi(location_of_memory_s);
 
-    int location_of_memory = stoi(location_of_memory_s);
-    if (location_of_memory >= (2 << 16)) { // mem 64k
-        cout << "error" << endl;
-        return 0; // TERMİNATE PROGRAM // BURASI DÜZELTİLECEK
+    if (location_of_memory > (2 << 15)) { // mem 64k
+        return -1;
     }
     return location_of_memory;
 }
@@ -1870,14 +1873,14 @@ int return_value_of_right_hand_side(int index) {
             else
                 return memory[stoi(line_array[index].substr(1, line_array[index].size() - 1))];
         } else if (line_array[index].at(0) == 'w')
-            if (line_array[index].at(line_array[index].size() - 1) == 'h')
-                return memory[hec_to_dec(line_array[index].substr(1, line_array[index].size() - 1))] +
-                       (hec_to_dec(line_array[index].substr(1, line_array[index].size() - 1)) + 1) < (pow(2, 16)) ?
-                       (memory[hec_to_dec(line_array[index].substr(1, line_array[index].size() - 1)) + 1] << 8) : 0;
-            else if (line_array[index].at(line_array[index].size() - 1) == 'd')
-                return memory[stoi(line_array[index].substr(1, line_array[index].size() - 1))] +
-                       (stoi(line_array[index].substr(1, line_array[index].size() - 1)) + 1) < (pow(2, 16)) ?
-                       (memory[stoi(line_array[index].substr(1, line_array[index].size() - 1))] << 8) : 0;
+            if (line_array[index].at(line_array[index].size() - 2) == 'h')
+                return memory[hec_to_dec(line_array[index].substr(2, line_array[index].size() - 1))] +
+                        (((hec_to_dec(line_array[index].substr(2, line_array[index].size() - 1)) + 1) < (pow(2, 16))) ?
+                       (memory[hec_to_dec(line_array[index].substr(2, line_array[index].size() - 1)) + 1] << 8) : 0);
+            else if (line_array[index].at(line_array[index].size() - 2) == 'd')
+                return memory[stoi(line_array[index].substr(2, line_array[index].size() - 1))] +
+                       (stoi(line_array[index].substr(2, line_array[index].size() - 1)) + 1) < (pow(2, 16)) ?
+                       (memory[stoi(line_array[index].substr(2, line_array[index].size() - 1))] << 8) : 0;
     } else if (line_array[index].at(0) >= 48 && line_array[index].at(0) <= 57)//bu bir sayi --mov [01h],02h //not b
     {
         if (line_array[index].at(line_array[index].size() - 1) == 'h')
