@@ -500,18 +500,26 @@ int mov(int i) {
             return -1;
         memory[location] = value;
     } else if (line_array[1] == "b" || line_array[1] == "w" || variable == line_array[1]) {
-        is_var=true;is_bit8=true;is_bit16=true;
+        is_var = true;
+        is_bit8 = true;
+        is_bit16 = true;
         if (line_array[1] == "b") {
-            is_bit16=false;
+            is_bit16 = false;
             int value = return_value_of_right_hand_side(3);
             if (value == -1)
                 return -1;
             memory[keep_index] = value;
-        } else if (variable == line_array[1] || line_array[1] == "w") {
-            if(line_array[1]!="w" && variable_type=="db")
+        } else if (variable == line_array[1]) {
+            if (line_array[1] != "w" && variable_type == "db") {
                 is_bit16=false;
-            if(line_array[1]!="w" && variable_type=="dw")
-                is_bit8=false;
+                int value = return_value_of_right_hand_side(line_array[1] == "w" ? 3 : 2);
+                if (value == -1)
+                    return -1;
+                memory[keep_index] = value;
+                is_bit16 = false;
+            }
+        else if (line_array[1] == "w" || variable_type == "dw") {
+            is_bit8 = false;
             int value = return_value_of_right_hand_side(line_array[1] == "w" ? 3 : 2);
             if (value == -1)
                 return -1;
@@ -521,6 +529,7 @@ int mov(int i) {
             if (keep_index + 1 < (pow(2, 16)))
                 memory[keep_index + 1] = head_of_8;
         }
+    }
     } else
         return -1;
     return 0;
@@ -1681,14 +1690,15 @@ int compare(int i) {
          Destination > source 0 0
     Destination = source 1 0
 */
-    string n = "";
-    int variable_index = 1;
-    unsigned short variable_value;
-    string type;
+    string var_name = "";
+    int variable_index = 0;
+    string var_type;
+    bool is_variable=false;
     for (auto const l:variable_array) {
         if (l.first == line_array[(line_array[1] == "b" || line_array[1] == "w") ? 2 : 1]) {
-            n = l.first;
-            type = l.second;
+            var_name = l.first;
+            var_type = l.second;
+            is_variable=true;
             break;
         }
         variable_index++;
@@ -1715,16 +1725,19 @@ int compare(int i) {
             change_flags(memory[*ptr], oo);
         }
     } else if (reg != reg_array.end()) {
-        int deger = return_value_of_right_hand_side(2);
-        if (deger == -1)
-            return -1;
         if (line_array[1].at(1) != 'l' && line_array[1].at(1) != 'h') {
             is_bit8=true;
+            int deger = return_value_of_right_hand_side(2);
+            if (deger == -1)
+                return -1;
             unsigned short *ptr;
             ptr = return_pointer(line_array[1]);
             change_flags(*ptr, deger);
         } else {
             is_bit16=true;
+            int deger = return_value_of_right_hand_side(2);
+            if (deger == -1)
+                return -1;
             unsigned char *ptr;
             ptr = get8Bit(line_array[1]);
             change_flags(*ptr, deger);
@@ -1742,21 +1755,40 @@ int compare(int i) {
             return -1;
         change_flags((memory[sayi] + (memory[sayi + 1] << 8)), value);
     }
-    else if (line_array[1] == "b" || line_array[1] == "w" || n == line_array[1] || n == line_array[2])//cmp w 'a',ax
+    else if(is_variable)//cmp w,b var, ax
     {
-        int value_right_hand_side = return_value_of_right_hand_side((line_array[1] == "b" || line_array[1] == "w") ? 3 : 2);
-        if (value_right_hand_side == -1)
-            return -1;
-        change_flags(variable_value, value_right_hand_side);
-        if (n == line_array[1] || n == line_array[2]) {
-            int right = return_value_of_right_hand_side(n == line_array[1] ? 2 : 3);
-            int value =memory[variable_index] + ((((variable_index + 1) < (pow(2, 16)))) ? (memory[variable_index + 1] << 8): 0);
-            change_flags(value, right);
-        } else {
-            int asci_code = line_array[2].at(0);
-            int right_value = return_value_of_right_hand_side(3);
-            change_flags(asci_code, right_value);
+        int value=0;
+        if(line_array[1]!="b" || line_array[1]!="w"){
+            if(var_type=="dw")
+                is_bit16=true;
+            else is_bit8=true;
+            int right_value=return_value_of_right_hand_side(2);
+            if(right_value==-1)
+                return -1;
+            value= var_type=="dw" ? (memory[variable_index] + (memory[variable_index+1]<<8)) : memory[variable_index];
+            change_flags(value,right_value);
+        }else{
+            is_bit16=is_bit8=true;
+            value = line_array[1]=="b" ? memory[variable_index] : (memory[variable_index]+(memory[variable_index+1]<<8));
+            int right_value=return_value_of_right_hand_side(3);
+            if(right_value==-1)
+                return -1;
+            change_flags(value,right_value);
         }
+    }
+    else if (line_array[1] == "b" || line_array[1] == "w")//cmp w 'a',ax
+    {
+        int value=0;
+        if(line_array[1] == "b" && !is_variable)
+            is_bit8=true;
+        else if(line_array[1]=="w")
+            is_bit16=true;
+        else return -1;
+        int value_right_hand_side = return_value_of_right_hand_side(3);
+        if(value_right_hand_side==-1)
+               return -1;
+        int asci=line_array[2][1];
+        change_flags(asci,value_right_hand_side);
     } else if (asci >= 48 && asci <= 57)//sayi
     {
         int value_rigth_hand_side = return_value_of_right_hand_side(2);
@@ -2126,10 +2158,10 @@ bool change_flags_wiht_byte(int byte,int sayi) {
     return false;
 }
 int return_value() {
-    int value;
+     int value;
     if (line_array[1] == "w" || line_array[1] == "b") {
         if (line_array[3] == "cl")
-            value = *return_pointer(line_array[3]);
+            value = *get8Bit(line_array[3]);
         else {
             if (line_array[3].at(0) == '0' && line_array[3].at(line_array[3].size() - 1) == 'h')
                 value = hec_to_dec(line_array[3]);
@@ -2149,7 +2181,7 @@ int return_value() {
     }
     else {
         if (line_array[2] == "cl")
-            value = *return_pointer(line_array[2]);
+            value = *get8Bit(line_array[2]);
         else {
             if (line_array[2].at(0) == '0' || line_array[2].at(line_array[2].size() - 1) == 'h')
                 value = hec_to_dec(line_array[2]);
@@ -2199,6 +2231,7 @@ int xor_or_and(string s) {
 
     if (x != bit16_array.end() || x1 != bit8_array.end()) {
         if (x != bit16_array.end()) {
+            is_bit16=true;
             unsigned short *ptr;
             ptr = return_pointer(line_array[1]);
             int value = return_value_of_right_hand_side(2);
@@ -2210,6 +2243,7 @@ int xor_or_and(string s) {
                 *ptr &= value;
             change_flags_only_one_paramether(*ptr);
         } else {
+            is_bit8=true;
             unsigned char *ptr;
             ptr = get8Bit(line_array[1]);
             int value = return_value_of_right_hand_side(2);
@@ -2224,11 +2258,14 @@ int xor_or_and(string s) {
     } else if (bit16_with_b_breaked != bit16_array_with_b_and_breaked.end() ||
                bit16_with_breaked != bit16_array_with_breaked.end() ||
                bit16_with_w_breaked != bit16_array_with_w_and_breaked.end()) {
-        string ss = line_array[1].substr((bit16_with_b_breaked != bit16_array_with_b_and_breaked.end() ||
-                                          bit16_with_w_breaked != bit16_array_with_w_and_breaked.end()) ? 2 : 1,
-                                         line_array[1].size() - 1);
+
+        string ss ="";  s=line_array[1].substr(line_array[1].find_first_of('[')+1,line_array[1].length());
+        s=s.substr(0,s.find_last_of(']'));
         unsigned short *ptr;
         ptr = return_pointer(ss);
+        if(bit16_with_b_breaked != bit16_array_with_b_and_breaked.end())
+            is_bit8=true;
+        else is_bit16=true;
         int value = return_value_of_right_hand_side(2);
         int toplam = memory[*ptr] + (*ptr + 1 < (pow(2, 16))) ? (memory[*ptr + 1] << 8) : 0;
         if (s == "or")
@@ -2246,12 +2283,16 @@ int xor_or_and(string s) {
     } else if (line_array[1].at(0) == '[' && line_array[1].at(line_array[1].size() - 1) == '[') {
         int sayi;
         if (line_array[1].at(line_array[1].size() - 2) == 'h' && line_array[1].at(1) == '0')
-            sayi = hec_to_dec(line_array[1].substr(1, line_array[1].size() - 1));
+            sayi = hec_to_dec(line_array[1].substr(1, line_array[1].size() - 2));
         else if (line_array[3].at(line_array[1].size() - 2) == 'd')
-            sayi = stoi(line_array[1].substr(1, line_array[1].size() - 3));
+            sayi = stoi(line_array[1].substr(1, line_array[1].size() - 2));
         else
             sayi = stoi(line_array[1].substr(1, line_array[1].size() - 2));
+        is_bit16=is_bit8=true;
         int value = return_value_of_right_hand_side(2);
+        if(value==-1) {
+            return -1;
+        }
         int k = memory[sayi] + ((sayi + 1 < (pow(2, 16))) ? (memory[sayi + 1] << 8) : 0);
         if (s == "or")
             k |= value;
@@ -2280,7 +2321,7 @@ int xor_or_and(string s) {
             } else if (s == "and") {
                 value_of_memory &= *ptr;
             }
-            int headof_8 = value_of_memory >> 8;
+            int headof_8 = (value_of_memory >> 8);
             int  tail_8 = last_8bit(value_of_memory);
             memory[keep_index] = tail_8;
             if (keep_index + 1 < (pow(2, 16)))
