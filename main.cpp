@@ -24,7 +24,7 @@ int return_value_of_right_hand_side(int index);
 void change_flags(int value_1, int value_2);
 int control_overflow(int a, int b, int byte);
 void change_flags_only_one_paramether(int value);
-bool change_flags_wiht_byte(int byte,int sayi);
+bool change_flags_with_byte(int byte,int sayi);
 int xor_or_and(string s);
 int JZ_JE(int i);
 int JNE_JNZ(int i);
@@ -66,7 +66,6 @@ unsigned short *pdi = &di;
 unsigned short *psi = &si;
 unsigned short *pbp = &bp;
 unsigned short *psp = &sp;
-
 unsigned char *pah = (unsigned char *) (((unsigned char *) &ax) + 1);
 unsigned char *pal = (unsigned char *) &ax;
 unsigned char *pbh = (unsigned char *) (((unsigned char *) &bx) + 1);
@@ -434,10 +433,12 @@ int mov(int i) {
     unsigned char variable_value;
     string variable_type = "";
     int keep_index = 0;
+    bool is_var=false;
     for (auto const variable_temp:variable_array) {
         if (variable_temp.first == line_array[(line_array[1] == "b" || line_array[1] == "w") ? 2 : 1]) {
             variable = variable_temp.first;
             variable_type = variable_temp.second;
+            is_var=true;
             break;
         }
         keep_index++;
@@ -501,7 +502,7 @@ int mov(int i) {
         if (value == -1 || value > pow(2, 8))
             return -1;
         memory[location] = value;
-    } else if (line_array[1] == "b" || line_array[1] == "w" || variable == line_array[1]) {
+    } else if (line_array[1] == "b" || line_array[1] == "w" || is_var) {
         is_var_global = true;
         is_bit8 = true;
         is_bit16 = true;
@@ -511,7 +512,7 @@ int mov(int i) {
             if (value == -1)
                 return -1;
             memory[keep_index] = value;
-        } else if (variable == line_array[1]) {
+        } else if (is_var) {
             if (line_array[1] != "w" && variable_type == "db") {
                 is_bit16=false;
                 int value = return_value_of_right_hand_side(line_array[1] == "w" ? 3 : 2);
@@ -562,7 +563,7 @@ int add(int i) {
             if(return_value_of_right_hand_side(2)==-1)
                 return -1;
             int value =*ptr + return_value_of_right_hand_side(2);
-            if(change_flags_wiht_byte(16,value))
+            if(change_flags_with_byte(16,value))
                 *ptr=value%(2<<15);
             else *ptr=value;
             change_flags_only_one_paramether(*ptr);
@@ -573,7 +574,7 @@ int add(int i) {
             if(return_value_of_right_hand_side(2)==-1)
                 return -1;
             int value =*ptr + return_value_of_right_hand_side(2);
-            if(change_flags_wiht_byte(8,value))
+            if(change_flags_with_byte(8,value))
                 *ptr=value%(2<<15);
             else *ptr=value;
             change_flags_only_one_paramether(*ptr);
@@ -585,7 +586,7 @@ int add(int i) {
         if(return_value_of_right_hand_side(2)==-1)
             return -1;
         int deger=value+return_value_of_right_hand_side(2);
-        if(change_flags_wiht_byte(16,deger))
+        if(change_flags_with_byte(16,deger))
             deger=deger%(2<<15);
         change_flags_only_one_paramether(deger);
         int headof_8 = (deger >> 8);
@@ -600,13 +601,13 @@ int add(int i) {
             if(return_value_of_right_hand_side(3)==-1)
                 return -1;
             int value=deger+return_value_of_right_hand_side(3);
-            if(change_flags_wiht_byte(8,value))
+            if(change_flags_with_byte(8,value))
                 value%=256;
             memory[keep_index] = value;
         } else if (line_array[1] == "w" || variable == line_array[1]) {
             is_bit16=true;
             int value = memory[keep_index] + (((keep_index + 1) < (pow(2, 16))) ? (memory[keep_index + 1] << 8) : 0);
-            if(change_flags_wiht_byte(16,value))
+            if(change_flags_with_byte(16,value))
                 value%=(2<<15);
             change_flags_only_one_paramether(value);
             int head_of_8 = (value >> 8);
@@ -2189,7 +2190,7 @@ void change_flags_only_one_paramether(int value){
         AF = 1;
     } else ZF = SF = 0;
 }
-bool change_flags_wiht_byte(int byte,int sayi) {
+bool change_flags_with_byte(int byte,int sayi) {
     if (pow(2, byte) < sayi){
         CF=AF=1;
         return true;
