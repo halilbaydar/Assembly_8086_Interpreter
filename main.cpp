@@ -5,51 +5,52 @@
 #include <cmath>
 #include "fstream"
 #include <string>
-using namespace std;
-unsigned short *return_pointer(string s);
-unsigned char *get8Bit(string s);
-int calculate_index(int arr_num);
-int hec_to_dec(string tmpstr);
-int convert_from_hexadecimal_to_decimal(string hex_val);
-int return_value();
-int mov(int i);
-int dec(int i);
+using namespace std;  //in between 9-23 lines there are helper functions which lots of essential aseembly funcitons can use at the same time.
+unsigned short *return_pointer(string s);      //this function returns 16 bit pointer of assembly 8086 register
+unsigned char *get8Bit(string s);       //this function returns 8 bit pointer of assembly 8086 register
+int calculate_index(int arr_num);      //this function returns the index of memory to reach that address
+int convert_from_hexadecimal_to_decimal(string hex_val);  //this function convert hexadecimal number to decimal number
+int return_value();     //rcl-rcr-shl-shr funcitons use this to take the value which know how many times are these functions processed
+int last_8bit(int o);   //this function returns the least significant 8 bit of any number
+int last_16bit(int p);  //this function returns the least significant 16 bit of any number
+string convert_from_decimal_to_binary(int i);      //this function returns binary form of any number in the type of string
+int return_value_of_right_hand_side(int index);     //this functions returns the value of right side of comma in the all line by eliminating and calculating
+void change_flags(int value_1, int value_2);    //this function compares value_1 with value_2 and changes flags according to it
+int control_overflow(int a, int b, int byte);   //this function is only used by the div function to check whether the result of process is arithmetic overflow or not
+void change_flags_only_one_paramether(int value);   //this function controls purely one unsigned value and change flags according to it
+bool change_flags_with_byte(int byte,int sayi); //this function is used by add-sub-mul functions to change flags
+int xor_or_and(string s);   // as there are many common points among xor-and-or functions so all process of them are done by it
+
+//24-52 lines contains assembly essantial functions described in project description.
+int mov(int i); // it moves data from one location to another
+int dec(int i); //it subtracts 1 from the destination operand, while preserving the state of the CF flag
 int inc_dec(int i);
-int add(int i);
-int sub(int i);
-int last_8bit(int o);
-int last_16bit(int p);
-string convert_from_decimal_to_binary(int i);
-int return_value_of_right_hand_side(int index);
-void change_flags(int value_1, int value_2);
-int control_overflow(int a, int b, int byte);
-void change_flags_only_one_paramether(int value);
-bool change_flags_with_byte(int byte,int sayi);
-int xor_or_and(string s);
-int JZ_JE(int i);
-int JNE_JNZ(int i);
-int JA_JNBE(int i);
-int JB_JC_JNAE(int i);
-int JBE(int i);
-int JNB_JAE(int i);
-int JNC(int i);
-int div(int i);
-int mul(int i);
-int JMP(int i);
-int no_t(int i);
-int x_or(int i);
-int o_r(int i);
-int an_d(int i);
-int rcr(int i);
-int shl(int i);
-int rcl(int i);
-int push(int i);
-int nop(int i);
-int pop(int i);
-char int_21h(int i, ofstream &outfile,ifstream& infile);
-int shr(int i);
-int compare(int i);
-void nop();
+int add(int i); // it adds data from source operand to destination operand
+int sub(int i); // it subtructs data from destination operand as much as source operand
+int JZ_JE(int i); // Jump if zero (Zero flag set)
+int JNE_JNZ(int i); //Jump if not zero (Zero flag clear)
+int JA_JNBE(int i); //Jump if not below or equal (same as JA)
+int JB_JC_JNAE(int i); //Jump if not above or equal (same as JB)
+int JBE(int i); // Jump if below or equal (if leftOp  rightOp)
+int JNB_JAE(int i); //Jump if not below (same as JAE)
+int JNC(int i); //Jump if not carry
+int div(int i); //the div (unsigned divide) instruction performs 8-bit, 16-bit unsigned integer division
+int mul(int i);  //the mul ((unsigned multiply) instruction performs 8-bit, 16-bit unsigned integer multiplication
+int JMP(int i);  //Jump to a new location without no condition
+int no_t(int i); //The not instruction toggles (inverts) all bits in an operand
+int x_or(int i); //The xor instruction performs a boolean exclusive-or operation between each pair of matching bits in two operands and stores the result in the destination operand
+int o_r(int i);  //The or instruction performs a boolean or operation between each pair of matching bits in two operands and stores the result in the destination operand
+int an_d(int i); //The or instruction performs a boolean and operation between each pair of matching bits in two operands and stores the result in the destination operand
+int rcr(int i);  //The rcr (rotate carry right) instruction shifts each bit to the right, copies the Carry flag into the MSB, and copies the LSB into the Carry flag
+int shl(int i);  //The shl (shift left ) instruction shifts a destination operand a given number of bits to the left
+int rcl(int i); //The rcl (rotate carry left) instruction shifts each bit to the left, copies the Carry flag to the LSB, and copies the MSB into the Carry flag
+int push(int i); //this function copies a value into the location in the stack pointed to by the stack pointer
+int nop(int i); //?
+int pop(int i); //The pop function first copies the contents of the stack element pointed to by sp into a 16 bit destination operand and then increments sp
+char int_21h(int i, ofstream &outfile,ifstream& infile); //this functions is used as I|O
+int shr(int i); //The shr (shift right) instruction performs a logical right shift on the destination operand, replacing the highest bit with a 0
+int compare(int i); //this funciton compares destination and source operand and change flasg with according to it
+//these are 16 bit registers
 unsigned short ax = 0;
 unsigned short bx = 0;
 unsigned short cx = 0;
@@ -58,6 +59,7 @@ unsigned short di = 0;
 unsigned short si = 0;
 unsigned short bp = 0;
 unsigned short sp = (2 << 15) - 2;
+//these are the pointer of the 16 bit and 8 bit registers
 unsigned short *pax = &ax;
 unsigned short *pbx = &bx;
 unsigned short *pcx = &cx;
@@ -80,23 +82,23 @@ unsigned char *pdih = (unsigned char *) (((unsigned char *) &di) + 1);
 unsigned char *pdil = (unsigned char *) &di;
 unsigned char *pbph = (unsigned char *) (((unsigned char *) &bp) + 1);
 unsigned char *pbpl = (unsigned char *) &bp;
-vector<string> line_array;
-bool CF, OF, AF, ZF, SF;
-vector<string> code_array;
-bool is_bit16=false;
-bool is_bit8=false;
-bool is_reg=false;
-bool is_memory=false;
-bool is_var_global=false;
-vector<string> reg_array = {"ax", "ah", "al", "bx", "bh", "bl", "cx", "ch", "cl", "dx", "dh", "dl", "si", "di", "bp"};
-vector<string> bit16_array = {"ax", "bx", "cx", "dx", "si", "di", "bp", "sp"};
-vector<string> bit8_array = {"al", "ah", "bl", "bh", "cl", "ch", "dl", "dh"};
-vector<string> bit16_array_with_breaked = {"[bx]", "[si]", "[di]", "[bp]"};
-vector<string> bit16_array_with_b_and_breaked = {"b[bx]", "b[di]", "b[si]", "b[bp]"};
-vector<string> bit16_array_with_w_and_breaked = {"w[bx]", "w[si]", "w[di]", "w[bp]"};
-vector<pair<string, string>> variable_array;
-vector<int> index_keeper;
-unsigned char memory[2 << 15];
+bool CF, OF, AF, ZF, SF; //these are flags which processer processes according to them
+vector<string> line_array; //this array keeps assembly line code line by line
+vector<string> code_array; //this array keeps all assembly code entered by coder
+bool is_bit16=false;    //this bool shows the left hand side of comma includes 16 bit element
+bool is_bit8=false;     //this bool shows the left hand side of comma includes 8 bit element
+bool is_reg=false;      //this bool shows the left hand side of comma includes any regesters
+bool is_memory=false;   //this bool shows the left hand side of comma includes any memory addres
+bool is_var_global=false;   ////this bool shows the left hand side of comma includes any variables that defined after int 20h command
+vector<string> reg_array = {"ax", "ah", "al", "bx", "bh", "bl", "cx", "ch", "cl", "dx", "dh", "dl", "si", "di", "bp"}; //this array covers all register 8,16 bit
+vector<string> bit16_array = {"ax", "bx", "cx", "dx", "si", "di", "bp", "sp"}; //this array keeps only 16 bit registers
+vector<string> bit8_array = {"al", "ah", "bl", "bh", "cl", "ch", "dl", "dh"}; //this array keeps onlt 8 bit registers
+vector<string> bit16_array_with_breaked = {"[bx]", "[si]", "[di]", "[bp]"}; //this array keeps the addres of which these 16 bit registers point
+vector<string> bit16_array_with_b_and_breaked = {"b[bx]", "b[di]", "b[si]", "b[bp]"}; //this array keeps the addres of which these 16 bit registers point only 8 bit side
+vector<string> bit16_array_with_w_and_breaked = {"w[bx]", "w[si]", "w[di]", "w[bp]"};  //this array keeps the addres of which these 16 bit registers point as identifying type of the addres
+vector<pair<string, string>> variable_array; //this array keeps the name and type of variables defined in commands
+vector<int> index_keeper; //this array contains the addres of variables
+unsigned char memory[2 << 15];  // this array represets memory in allowed size given by instructor
 vector<string>::iterator p;
 void trim(string& s){
     string temp="";
@@ -106,14 +108,16 @@ void trim(string& s){
     }
     s=temp;
 }
-void tokenizer(string s){
-    string left_side=s.substr(0,s.find_first_of(','));
-    string right_side=s.substr(s.find_first_of(',')+1,s.length());
-    int middle_of_line=s.find_first_of(',');
+void tokenizer(string s)//this function reads the input given by developer as a line by line and send to process
+{
+    string left_side=s.substr(0,s.find_first_of(',')); //this line split the given line as getting with reference to the commma. left hand side
+    string right_side=s.substr(s.find_first_of(',')+1,s.length()); //right hand side
+    int middle_of_line=s.find_first_of(','); // this keeps the comma index in the line
     string token="";
     vector<string> temp_array;
     string left_temp;
     string right_temp;
+    //there are some special input such as b  [  bx  ]  and these if catch such items
     if(left_side.find('[')!=string::npos && left_side.find(']')!=string::npos){
         if(left_side[left_side.find_first_of('[')-1]=='b' || left_side[left_side.find_first_of('[')-1]=='w'){
             left_temp=left_side.substr(left_side.find_first_of('[')-1,left_side.length());
@@ -132,9 +136,10 @@ void tokenizer(string s){
             right_temp=right_temp.substr(0,right_temp.find_last_of(']')+1);
         }
     }
-    trim(left_temp);
+    trim(left_temp); //items that above if statements catched are tirmed by helper trim functions
     trim(right_temp);
-    for (int k = 0; k < s.size() && s != "code segment" && s != "code ends"; k++) {
+    for (int k = 0; k < s.size() && s != "code segment" && s != "code ends"; k++) //this for loop splits the line according to given if statements and combines them into temp_array
+    {
         if (s[k] != ' ' && s[k] != ',' && s[k] != '\t' && s[k]!='\'' && s[k]!='\"' && s[k+1]!='\'' && s[k+1]!='\"' && s[k]!='[' && s[k]!=']') {
             token += s[k];
             if(k+1==s.size()){
@@ -176,7 +181,9 @@ void tokenizer(string s){
     for (int  i = 0; i <temp_array.size(); i++)
         line_array.push_back(temp_array[i]);
 }
-int main(int argc, char *argv[]) {
+int main(int argc, char *argv[])//main function get the instructions and control all assembly functions with according to given input
+{
+    //in there input is red line by line with argv[1] and put into code array
     ofstream outFile(argv[2]);
     ifstream infile(argv[1]);
     string line_code;
@@ -189,31 +196,37 @@ int main(int argc, char *argv[]) {
     }
     string instruction;
     int i = 0;
-    for (vector<string>::iterator p = code_array.begin(); p != code_array.end(); p++) {
+    for (vector<string>::iterator p = code_array.begin(); p != code_array.end(); p++) //this for travels all code int the input
+    {
         string line = *p;
         tokenizer(line);
         if (line_array.size() > 1) {
-            if (line_array[1] == "db" || line_array[1] == "dw") {
-                if(line_array[0]=="label"){cout<<"Unsupported Variable Name in line : " <<i; return 0;}
+            if (line_array[1] == "db" || line_array[1] == "dw") //this if statements controls whether the line include a variable or not
+            {
+                if(line_array[0]=="label:"){cout<<"Unsupported Variable Name in line : " <<i; return 0;}
                 int temp_ascii;
                 if(line_array[2][0]=='\'' || line_array[2][0]=='\"')
                     temp_ascii= line_array[2][1];
                 else temp_ascii=line_array[2][0];
-                if (line_array[2][0]!='\'' && line_array[2][0]!='\"' && temp_ascii >= 48 && temp_ascii <= 57 )//bu bir sayı
+                if (line_array[2][0]!='\'' && line_array[2][0]!='\"' && temp_ascii >= 48 && temp_ascii <= 57 ||(line_array[2].at(line_array[2].size() - 1) == 'h')||(line_array[2].at(line_array[2].size() - 1) == 'd'))
+                    //this statements decides the input any number or not
                 {
                     int sayi = 0;
-                    if (line_array[2].at(line_array[2].size() - 1) == 'h' || line_array[2].at(0) == 0) {
+                    if (line_array[2].at(line_array[2].size() - 1) == 'h' || line_array[2].at(0) == 0) //this fi statements check if this hexadecimal number or not
+                    {
                         line_array[2].substr(0, line_array[2].size() - 1);
-                        sayi = hec_to_dec(line_array[2]);
+                        sayi = convert_from_hexadecimal_to_decimal(line_array[2]);
                     } else {
-                        if (line_array[2].at(line_array[2].size() - 1) == 'd') {
+                        if (line_array[2].at(line_array[2].size() - 1) == 'd') //this fi statements check if this decimal number or not
+                        {
                             line_array[2] = line_array[2].substr(0, line_array[2].size() - 1);
                             sayi = stoi(line_array[2]);
                         } else {
                             sayi = stoi(line_array[2]);
                         }
                     }
-                    if ((line_array[1] == "db" && sayi < 256) || line_array[1] == "dw") {
+                    if ((line_array[1] == "db" && sayi < 256) || line_array[1] == "dw") //this statements controls if it is number or char
+                    {
                         if ((line_array[1] == "db")) {
                             memory[i] = sayi;
                             variable_array.push_back({line_array[0],line_array[1]});
@@ -232,7 +245,7 @@ int main(int argc, char *argv[]) {
                             continue;
                         }
                     }
-                } else //bu bir char
+                } else //it is a char
                 {
                     memory[i] = temp_ascii;
                     variable_array.push_back({line_array[0],line_array[1]});
@@ -248,18 +261,23 @@ int main(int argc, char *argv[]) {
         continue;
     }
     i = 0;
-    for (p = code_array.begin(); p != code_array.end(); p++) {
+    for (p = code_array.begin(); p != code_array.end(); p++) //this loop travels all given code ,which sometimes forward or back
+    {
         string line = *p;
         tokenizer(line);
         i++;
         if(line_array.size()>0){
-        if (line_array.size() > 2 && line_array[0] == "mov") {
-            if (mov(i) == -1) {
+            //to determine which function is processed
+        if (line_array.size() > 2 && line_array[0] == "mov") //this instructions oversees given instruction is mov
+        {
+            if (mov(i) == -1) //this if statemnts controls the value which funciton returns and finish
+            {
                 cout << "Error in line :" << i;
                 return 0;
             }
-        } else if (line_array[0] == "inc") {
-            int a=inc_dec(1);
+        } else if (line_array[0] == "inc") //this instructions oversees given instruction is inc
+        {
+            int a=inc_dec(1);//this if statemnts controls the value which funciton returns and finish
             if (a == -1) {
                 cout << "Error in line :" << i;
                 return 0;
@@ -268,8 +286,9 @@ int main(int argc, char *argv[]) {
                 cout << "Overflow in line :" << i;
                 return 0;
             }
-        } else if (line_array[0] == "dec") {
-            int a=inc_dec(-1);
+        } else if (line_array[0] == "dec") //this instructions oversees given instruction is dec
+        {
+            int a=inc_dec(-1);//this if statemnts controls the value which funciton returns and finish
             if (a == -1) {
                 cout << "Error in line :" << i;
                 return 0;
@@ -278,21 +297,24 @@ int main(int argc, char *argv[]) {
                 cout << "Overflow in line :" << i;
                 return 0;
             }
-        } else if (line_array.size() > 2 && line_array[0] == "add") {
-            int a=add(i) == -1;
+        } else if (line_array.size() > 2 && line_array[0] == "add") //this instructions oversees given instruction is add
+        {
+            int a=add(i) == -1;//this if statemnts controls the value which funciton returns and finish
             if (a==-1) {
                 cout << "Error in line :" << i;
                 return 0;
             }
-        } else if (line_array.size() > 2 && line_array[0] == "sub") {
-            int a=sub(i);
+        } else if (line_array.size() > 2 && line_array[0] == "sub") //this instructions oversees given instruction is sub
+        {
+            int a=sub(i);//this if statemnts controls the value which funciton returns and finish
             if (a== -1)
             {
                 cout << "Error in line :" << i;
                 return 0;
             }
-        } else if (line_array.size() > 0 && line_array[0] == "div") {
-            int a = div(i);
+        } else if (line_array.size() > 0 && line_array[0] == "div") //this instructions oversees given instruction is div
+        {
+            int a = div(i);//this if statemnts controls the value which funciton returns and finish
             if (a == -1) {
                 cout << "Error in line :" << i;
                 return 0;
@@ -300,116 +322,161 @@ int main(int argc, char *argv[]) {
                 cout << "Overflow in line : " << i;
                 return 0;
             }
-        } else if (line_array.size() > 0 && line_array[0] == "mul") {
-            int a = mul(i);
+        } else if (line_array.size() > 0 && line_array[0] == "mul") //this instructions oversees given instruction is mul
+        {
+            int a = mul(i);//this if statemnts controls the value which funciton returns and finish or continue the process
             if (a == -1) {
                 cout << "Error in line :" << i;
                 return 0;
             }
-        } else if (line_array[0] == "xor") {
-            if (x_or(i) == -1) {
+        } else if (line_array[0] == "xor") //this instructions oversees given instruction is xor
+        {
+            if (x_or(i) == -1) //this if statemnts controls the value which funciton returns and finish or continue the process
+            {
                 cout << "Error in line :" << i;
                 return 0;
             }
-        } else if (line_array[0] == "or") {
-            if (o_r(i) == -1) {
+        } else if (line_array[0] == "or") //this instructions oversees given instruction is or
+        {
+            if (o_r(i) == -1) //this if statemnts controls the value which funciton returns and finish or continue the process
+            {
                 cout << "Error in line :" << i;
                 return 0;
             }
-        } else if (line_array[0] == "and") {
-            if (an_d(i) == -1) {
+        } else if (line_array[0] == "and") //this instructions oversees given instruction is and
+        {
+            if (an_d(i) == -1) //this if statemnts controls the value which funciton returns and finish or continue the process
+            {
                 cout << "Error in line :" << i;
                 return 0;
             }
-        } else if (line_array[0] == "not") {
-            if (no_t(i) == -1) {
+        } else if (line_array[0] == "not") //this instructions oversees given instruction is not
+        {
+            if (no_t(i) == -1)//this if statemnts controls the value which funciton returns and finish or continue the process
+            {
                 cout << "Error in line :" << i;
                 return 0;
             }
-        } else if (line_array[0] == "rcl") {
-            if (rcl(i) == -1) {
+        } else if (line_array[0] == "rcl") //this instructions oversees given instruction is rcl
+        {
+            if (rcl(i) == -1) //this if statemnts controls the value which funciton returns and finish or continue the process
+            {
                 cout << "Error in line :" << i;
                 return 0;
             }
-        } else if (line_array[0] == "rcr") {
-            if (rcr(i) == -1) {
+        } else if (line_array[0] == "rcr") //this instructions oversees given instruction is rcr
+        {
+            if (rcr(i) == -1) //this if statemnts controls the value which funciton returns and finish or continue the process
+            {
                 cout << "Error in line :" << i;
                 return 0;
             }
-        } else if (line_array[0] == "shl") {
-            if (shl(i) == -1) {
+        } else if (line_array[0] == "shl") //this instructions oversees given instruction is shl
+        {
+            if (shl(i) == -1) //this if statemnts controls the value which funciton returns and finish or continue the process
+            {
                 cout << "Error in line :" << i;
                 return 0;
             }
-        } else if (line_array[0] == "shr") {
-            if (shr(i) == -1) {
+        } else if (line_array[0] == "shr") //this instructions oversees given instruction is shr
+        {
+            if (shr(i) == -1) //this if statemnts controls the value which funciton returns and finish or continue the process
+            {
                 cout << "Error in line :" << i;
                 return 0;
             }
-        } else if (line_array[0] == "cmp") {
-            if (compare(i) == -1) {
+        } else if (line_array[0] == "cmp") //this instructions oversees given instruction is cmp
+        {
+            if (compare(i) == -1) //this if statemnts controls the value which funciton returns and finish or continue the process
+            {
                 cout << "Error in line :" << i;
                 return 0;
             }
-        } else if (line_array[0] == "push") {
-            if (push(i) == -1) {
+        } else if (line_array[0] == "push") //this instructions oversees given instruction is push
+        {
+            if (push(i) == -1) //this if statemnts controls the value which funciton returns and finish or continue the process
+            {
                 cout << "Error in line :" << i;
                 return 0;
             }
-        } else if (line_array[0] == "pop") {
-            if (pop(i) == -1) {
+        } else if (line_array[0] == "pop") //this instructions oversees given instruction is pop
+        {
+            if (pop(i) == -1) //this if statemnts controls the value which funciton returns and finish or continue the process
+            {
                 cout << "Error in line :" << i;
                 return 0;
             }
-        } else if (line_array[0] == "nop") {
-            if (nop(i) == -1) {
+        } else if (line_array[0] == "nop") //this instructions oversees given instruction is nop
+        {
+            if (nop(i) == -1) //this if statemnts controls the value which funciton returns and finish or continue the process
+            {
                 cout << "Error in line :" << i;
                 return 0;
             }
-        } else if (line_array[0] == "jz" || line_array[0] == "je") {
-            if (JZ_JE(i) == -1) {
+        } else if (line_array[0] == "jz" || line_array[0] == "je") //this instructions oversees given instruction is jz or je
+        {
+            if (JZ_JE(i) == -1)//this if statemnts controls the value which funciton returns and finish or continue the process
+            {
                 cout << "Error in line :" << i;
                 return 0;
             }
-        } else if (line_array[0] == "jne" || line_array[0] == "jnz") {
-            if (JNE_JNZ(i) == -1) {
+        } else if (line_array[0] == "jne" || line_array[0] == "jnz") //this instructions oversees given instruction is jne or jnz
+        {
+            if (JNE_JNZ(i) == -1) //this if statemnts controls the value which funciton returns and finish or continue the process
+            {
                 cout << "Error in line :" << i;
                 return 0;
             }
-        } else if (line_array[0] == "ja" || line_array[0] == "jnbe") {
-            if (JA_JNBE(i) == -1) {
+        } else if (line_array[0] == "ja" || line_array[0] == "jnbe") //this instructions oversees given instruction is ja or jnbe
+        {
+            if (JA_JNBE(i) == -1) //this if statemnts controls the value which funciton returns and finish or continue the process
+            {
                 cout << "Error in line :" << i;
                 return 0;
             }
-        } else if (line_array[0] == "jb" || line_array[0] == "jc" || line_array[0] == "jnae") {
-            if (JB_JC_JNAE(i) == -1) {
+        } else if (line_array[0] == "jb" || line_array[0] == "jc" || line_array[0] == "jnae") //this instructions oversees given instruction is jb,jc or jnae
+        {
+            if (JB_JC_JNAE(i) == -1)//this if statemnts controls the value which funciton returns and finish or continue the process
+            {
                 cout << "Error in line :" << i;
                 return 0;
             }
-        } else if (line_array[0] == "jbe") {
-            if (JBE(i) == -1) {
+        } else if (line_array[0] == "jbe") //this instructions oversees given instruction is jbe
+        {
+            if (JBE(i) == -1) //this if statemnts controls the value which funciton returns and finish or continue the process
+            {
                 cout << "Error in line :" << i;
                 return 0;
             }
-        } else if (line_array[0] == "jnb" || line_array[0] == "jae") {
-            if (JNB_JAE(i) == -1) {
+        } else if (line_array[0] == "jnb" || line_array[0] == "jae") //this instructions oversees given instruction is jnb or jae
+        {
+            if (JNB_JAE(i) == -1) //this if statemnts controls the value which funciton returns and finish or continue the process
+            {
                 cout << "Error in line :" << i;
                 return 0;
             }
-        } else if (line_array[0] == "jnc") {
-            if (JNC(i) == -1) {
+        } else if (line_array[0] == "jnc") //this instructions oversees given instruction is jnc
+        {
+            if (JNC(i) == -1) //this if statemnts controls the value which funciton returns and finish or continue the process
+            {
                 cout << "Error in line :" << i;
                 return 0;
             }
-        } else if (line_array[0] == "jmp") {
-            if (JMP(i) == -1) {
+        } else if (line_array[0] == "jmp") //this instructions oversees given instruction is jmp
+        {
+            if (JMP(i) == -1) //this if statemnts controls the value which funciton returns and finish or continue the process
+            {
                 cout << "Error in line :" << i;
                 return 0;
             }
-        } else if (line_array[0] == "int" && line_array[1] == "21h") { int_21h(i, outFile,infile); }
-        else if (line_array[0] == "int" && line_array[1] == "20h") { return 0; }
-        else if (line_array[0] == "code" || (line_array[0].at(line_array[0].size() - 1) == ':')){}
+        } else if (line_array[0] == "int" && line_array[1] == "21h") //this instructions oversees given instruction is int 21h
+        { int_21h(i, outFile,infile); }
+        else if (line_array[0] == "int" && line_array[1] == "20h")//this instructions oversees given instruction is inc
+             { return 0; }
+        else if (line_array[0] == "code" || (line_array[0].at(line_array[0].size() - 1) == ':'))//this instructions oversees given instruction is inc
+        {}
         else {cout<<"Error in line :"<<i; return 0;}
+        //these commands reset all global variables
         line_array.clear();
         is_bit8= false;
         is_bit16= false;
@@ -422,7 +489,7 @@ int main(int argc, char *argv[]) {
 }
 int mov(int i) {
     //reg,memory,(var,w|b war)
-    vector<string>::iterator bit16_reg = find(bit16_array.begin(), bit16_array.end(), line_array[1]);
+    vector<string>::iterator bit16_reg = find(bit16_array.begin(), bit16_array.end(), line_array[1]); //it returns 16 and 8 bit register if it is in the process
     vector<string>::iterator bit8_reg = find(bit8_array.begin(), bit8_array.end(), line_array[1]);
     vector<string>::iterator bit16_reg_b_breaked = find(bit16_array_with_b_and_breaked.begin(),
                                                         bit16_array_with_b_and_breaked.end(), line_array[1]);
@@ -433,7 +500,7 @@ int mov(int i) {
     unsigned char variable_value;
     string variable_type = "";
     int keep_index = 0;
-    bool is_var=false;
+    bool is_var=false; //this for travels the specific array to find variable name and type if necessary
     for (auto const variable_temp:variable_array) {
         if (variable_temp.first == line_array[(line_array[1] == "b" || line_array[1] == "w") ? 2 : 1]) {
             variable = variable_temp.first;
@@ -445,94 +512,89 @@ int mov(int i) {
     }
     if(!index_keeper.empty())
         keep_index=index_keeper[keep_index];
-    if (bit16_reg != bit16_array.end() || bit8_reg != bit8_array.end()) {
+    if (bit16_reg != bit16_array.end() || bit8_reg != bit8_array.end()) //if 16 or 8 bit register is in process
+    {
         is_reg=true;
         unsigned short *ptr = nullptr;
         unsigned char *ptr2 = nullptr;
         if (bit16_reg != bit16_array.end()) {
-            ptr = return_pointer(line_array[1]);
+            ptr = return_pointer(line_array[1]); //returns 16 bit register
             is_bit16=true;
-            int value = return_value_of_right_hand_side(2);
+            int value = return_value_of_right_hand_side(2); //this line returns the value of the right hand side ,which is the right of comma in line
             if(value==-1)return -1;
             *ptr=value;
         } else {
-            ptr2 = get8Bit(line_array[1]);
+            ptr2 = get8Bit(line_array[1]); //return 8 bit resgister
             is_bit8=true;
-            int value = return_value_of_right_hand_side(2);
+            int value = return_value_of_right_hand_side(2); //this line returns the value of the right hand side ,which is the right of comma in line
             if(value==-1)
                 return -1;
             *ptr2=value;
         }
-    } else if (bit16_reg_b_breaked != bit16_array_with_b_and_breaked.end() || bit16_reg_w_breaked != bit16_array_with_w_and_breaked.end()) {
+    } else if (bit16_reg_b_breaked != bit16_array_with_b_and_breaked.end() || bit16_reg_w_breaked != bit16_array_with_w_and_breaked.end()) //if such b[bx] or w[si] registers are in the process
+    {
         is_reg=true;
         if(bit16_reg_b_breaked != bit16_array_with_b_and_breaked.end())
             is_bit8=true;
         else is_bit16=true;
         unsigned short *ptr;
         string s = ""; s.push_back(line_array[1].at(2)); s.push_back(line_array[1].at(3));
-        ptr = return_pointer(s);
-        int value = return_value_of_right_hand_side(2);
+        ptr = return_pointer(s);   //returns 16 bit register
+        int value = return_value_of_right_hand_side(2); //this line returns the value of the right hand side ,which is the right of comma in line
         if (value == -1)
             return -1;
         if (bit16_reg_b_breaked != bit16_array_with_b_and_breaked.end())
             memory[*ptr] = value;
         else {
             if ((*ptr + 1) < (2 << 16))
-                memory[*ptr + 1] = (value >> 8);
-            int tail = last_8bit(value);
+                memory[*ptr + 1] = (value >> 8); //to put the most signifiant 8 bit of the value into higher index in the memory, line scrolles 8 bit to the right
+            int tail = last_8bit(value); //this returns the least significant 8 bit of the value
             memory[*ptr] = tail;
         }
-    } else if (line_array[1].at(0) == '[' || ((line_array[1].at(line_array[1].size() - 1) == ']') && line_array[1].at(0) == 'w')) {
+    } else if (line_array[1].at(0) == '[' || ((line_array[1].at(line_array[1].size() - 1) == ']') && line_array[1].at(0) == 'w'))//if memory addres is in the process
+    {
         is_bit16=true; is_memory=true;
         int location = calculate_index(1);
-        int value = return_value_of_right_hand_side(2);
+        int value = return_value_of_right_hand_side(2); //this line returns the value of the right hand side ,which is the right of comma in line
         if(location==-1 || value == -1)
             return -1;
         if (value < (pow(2, 16))) {
-            int head_of_8 = value >> 8;
-            int  tail_8 = last_8bit(value);
+            int head_of_8 = value >> 8;  //to put the most signifiant 8 bit of the value into higher index in the memory, line scrolles 8 bit to the right
+            int  tail_8 = last_8bit(value);   //this returns the least significant 8 bit of the value
             memory[location] = tail_8;
             if (location + 1 < (pow(2, 16)))
                 memory[location + 1] = head_of_8;
         } else return -1;
-    } else if ((line_array[1].at(line_array[1].size() - 1) == ']') && line_array[1].at(0) == 'b') {
+    } else if ((line_array[1].at(line_array[1].size() - 1) == ']') && line_array[1].at(0) == 'b') //if such b[01h] memory addresing is in the process
+    {
         is_bit8=true; is_memory==true;
-        int location = calculate_index(1);
-        int value = return_value_of_right_hand_side(2);
+        int location = calculate_index(1);  //calculate memory index
+        int value = return_value_of_right_hand_side(2); //this line returns the value of the right hand side ,which is the right of comma in line
         if (value == -1 || value > pow(2, 8))
             return -1;
         memory[location] = value;
     } else if (line_array[1] == "b" || line_array[1] == "w" || is_var) {
-        is_var_global = true;
-        is_bit8 = true;
-        is_bit16 = true;
-        if (line_array[1] == "b") {
-            is_bit16 = false;
-            int value = return_value_of_right_hand_side(3);
-            if (value == -1)
-                return -1;
-            memory[keep_index] = value;
-        } else if (is_var) {
-            if (line_array[1] != "w" && variable_type == "db") {
-                is_bit16=false;
-                int value = return_value_of_right_hand_side(line_array[1] == "w" ? 3 : 2);
+            if ((line_array[1] == "b" )||(variable_type == "db" && line_array[1]==variable)) {
+                is_bit16=false; is_bit8=true;
+                int value = return_value_of_right_hand_side(line_array[1] == "b" ? 3 : 2);  //this line returns the value of the right hand side ,which is the right of comma in line
                 if (value == -1)
                     return -1;
-                memory[keep_index] = value;
+                if(value<256)
+                    memory[keep_index] = value;
+                else return -1;
                 is_bit16 = false;
             }
-        else if (line_array[1] == "w" || variable_type == "dw") {
-            is_bit8 = false;
-            int value = return_value_of_right_hand_side(line_array[1] == "w" ? 3 : 2);
+        else if ((line_array[1] == "w" )||(variable_type == "dw" && line_array[1]==variable)) {
+            is_bit8 = false; is_bit16=true;
+            int value = return_value_of_right_hand_side(line_array[1] == "w" ? 3 : 2);  //this line returns the value of the right hand side ,which is the right of comma in line
             if (value == -1)
                 return -1;
-            int head_of_8 = (value >> 8);
-            int tail_8 = last_8bit(value);
+            int head_of_8 = (value >> 8); // to extract the most significant 8 bit
+            int tail_8 = last_8bit(value);  //to obtain the lest significant 8 bit
             memory[keep_index] = tail_8;
             if (keep_index + 1 < (pow(2, 16)))
                 memory[keep_index + 1] = head_of_8;
         }
-    }
     } else
         return -1;
     return 0;
@@ -541,160 +603,210 @@ int add(int i) {
     //reg,memory,(var,w|b war)
     vector<string>::iterator bit16_reg = find(bit16_array.begin(), bit16_array.end(), line_array[1]);
     vector<string>::iterator bit8_reg = find(bit8_array.begin(), bit8_array.end(), line_array[1]);
+    vector<string>::iterator bit16_reg_b_breaked = find(bit16_array_with_b_and_breaked.begin(),
+                                                        bit16_array_with_b_and_breaked.end(), line_array[1]);
+    vector<string>::iterator bit16_reg_w_breaked = find(bit16_array_with_w_and_breaked.begin(),
+                                                        bit16_array_with_w_and_breaked.end(), line_array[1]);
     string variable = "";
     unsigned char variable_value;
     string variable_type = "";
     int keep_index = 0;
-    for (auto const variable_temp:variable_array) {
+    bool is_var=false;
+    for (auto const variable_temp:variable_array) //this for traverse the specific array to find variable name and type if necessary
+    {
         if (variable_temp.first == line_array[(line_array[1] == "b" || line_array[1] == "w") ? 2 : 1]) {
             variable = variable_temp.first;
             variable_type = variable_temp.second;
+            is_var=true;
             break;
         }
         keep_index++;
     }
     if(!index_keeper.empty())
         keep_index=index_keeper[keep_index];
-    if (bit16_reg != bit16_array.end() || bit8_reg != bit8_array.end()) {
+    if (bit16_reg != bit16_array.end() || bit8_reg != bit8_array.end()) //if 16 or 8 bit register is in process
+    {
         if (bit16_reg != bit16_array.end()) {
             is_bit16= true;
             unsigned short *ptr;
-            ptr = return_pointer(line_array[1]);
-            if(return_value_of_right_hand_side(2)==-1)
+            ptr = return_pointer(line_array[1]); //returns 16 bit register
+            int a=return_value_of_right_hand_side(2); //this line returns the value of the right hand side ,which is the right of comma in line
+            if(a==-1)
                 return -1;
-            int value =*ptr + return_value_of_right_hand_side(2);
+            int value =*ptr + a;
             if(change_flags_with_byte(16,value))
                 *ptr=value%(2<<15);
             else *ptr=value;
-            change_flags_only_one_paramether(*ptr);
+            change_flags_only_one_paramether(*ptr); //changes the flags according to the result of operation
         } else if (bit8_reg != bit8_array.end()) {
             is_bit8= true;
             unsigned char *ptr;
             ptr = get8Bit(line_array[1]);
-            if(return_value_of_right_hand_side(2)==-1)
+            int tt=return_value_of_right_hand_side(2); //this line returns the value of the right hand side ,which is the right of comma in line
+            if(tt==-1)
                 return -1;
-            int value =*ptr + return_value_of_right_hand_side(2);
-            if(change_flags_with_byte(8,value))
+            int value =*ptr + tt;
+            if(change_flags_with_byte(8,value)) //if the result of process is biggerden storage, it is taken mod of storage size
                 *ptr=value%(2<<15);
             else *ptr=value;
             change_flags_only_one_paramether(*ptr);
         }
-    } else if (line_array[1].at(0) == '[' && line_array[1].at(line_array[1].size() - 1) == ']') {
-        is_bit16=true;
+    } else if ((line_array[1].at(0) == '[' && line_array[1].at(line_array[1].size() - 1) == ']') ||
+    (bit16_reg_b_breaked!=bit16_array_with_b_and_breaked.end() || bit16_reg_w_breaked!=bit16_array_with_w_and_breaked.end()))//this if statemts for memory direct and also indirect addresing
+    {
+        is_bit16=true; int value=0; is_bit8=true;
         int location = calculate_index(1);
-        int value = memory[location] + ((location + 1 )< (pow(2, 16)) ? (memory[location + 1] << 8) : 0);
-        if(return_value_of_right_hand_side(2)==-1)
+        bool temp=false;
+       if( (line_array[1].at(0) == '[' && line_array[1].at(line_array[1].size() - 1) == ']') || (bit16_reg_w_breaked!=bit16_array_with_w_and_breaked.end())) //is it 16 bit process
+           temp=true;
+        if(temp)
+             value= memory[location] + ((location + 1 )< (pow(2, 16)) ? (memory[location + 1] << 8) : 0);
+        else
+            value= memory[location];
+        int a=return_value_of_right_hand_side(2);
+        if(a==-1)
             return -1;
-        int deger=value+return_value_of_right_hand_side(2);
-        if(change_flags_with_byte(16,deger))
+        int deger=value+a;
+        if(temp && change_flags_with_byte(16,deger)) //change flags
             deger=deger%(2<<15);
+        else if(!temp && change_flags_with_byte(8,deger)) //change flags
+            deger=deger%(2<<7);
         change_flags_only_one_paramether(deger);
-        int headof_8 = (deger >> 8);
-        int tail_8 = last_8bit(deger);
-        memory[location] = headof_8;
-        if (location + 1 < (pow(2, 16)))
-            memory[location + 1] = tail_8;
-    } else if (line_array[1] == "b" || line_array[1] == "w" || variable == line_array[1])
-        if (line_array[1] == "b") {
-            is_bit8=true;
-            int deger = memory[keep_index];
-            if(return_value_of_right_hand_side(3)==-1)
-                return -1;
-            int value=deger+return_value_of_right_hand_side(3);
-            if(change_flags_with_byte(8,value))
-                value%=256;
-            memory[keep_index] = value;
-        } else if (line_array[1] == "w" || variable == line_array[1]) {
-            is_bit16=true;
-            int value = memory[keep_index] + (((keep_index + 1) < (pow(2, 16))) ? (memory[keep_index + 1] << 8) : 0);
-            if(change_flags_with_byte(16,value))
-                value%=(2<<15);
-            change_flags_only_one_paramether(value);
-            int head_of_8 = (value >> 8);
-            int tail_8 =last_8bit( value);
-            memory[keep_index] = tail_8;
-            memory[keep_index + 1] = head_of_8;
-        } else
-            return -1;
+        if(temp){
+            int headof_8 = (deger >> 8);  //the most significant 8 bit
+            int tail_8 = last_8bit(deger);
+            memory[location] = headof_8;  //push the specific location in the memory
+            if (location + 1 < (pow(2, 16)))
+                memory[location + 1] = tail_8;
+        }else memory[location]=deger;
+    } else if (line_array[1] == "b" || line_array[1] == "w" || is_var) //is it var ?
+    {is_var_global = true;is_bit8 = true;is_bit16 = true;
+            if ((line_array[1] == "b" )||(variable_type == "db" && line_array[1]==variable))//is it byte type?
+            {
+                is_bit16=false;
+                int value  = return_value_of_right_hand_side(line_array[1] == "b" ? 3 : 2);  //this line returns the value of the right hand side ,which is the right of comma in line
+                int result = value +  memory[keep_index] ;
+                if ((value == -1 ) || (value>256))
+                        return -1;
+                if(change_flags_with_byte(8,result))
+                       value%=(2<<7);
+                change_flags_only_one_paramether(result);
+                memory[keep_index] = result ;
+            }
+            else if ((line_array[1] == "w" )||(variable_type == "dw" && line_array[1]==variable)) //is it word type?
+            {
+                is_bit8 = false;
+                int value = return_value_of_right_hand_side(line_array[1] == "w" ? 3 : 2);  //this line returns the value of the right hand side ,which is the right of comma in line
+                int deger=memory[keep_index]+(memory[keep_index+1]<<8);
+                int result=value+deger;
+                if (value == -1 || (deger>(2<<15)))
+                         return -1 ;
+                int head_of_8 = (result >> 8); // to extract the most significant 8 bit
+                int tail_8 = last_8bit(result);  //to obtain the lest significant 8 bit
+                memory[keep_index] = tail_8;
+                if (keep_index + 1 < (pow(2, 16)))
+                    memory[keep_index + 1] = head_of_8;
+            }
+    }
     return 0;
 }
 int sub(int i) {
     //reg,memory,(var,w|b war)
     vector<string>::iterator bit16_reg = find(bit16_array.begin(), bit16_array.end(), line_array[1]);
     vector<string>::iterator bit8_reg = find(bit8_array.begin(), bit8_array.end(), line_array[1]);
-
+    vector<string>::iterator bit16_reg_b_breaked = find(bit16_array_with_b_and_breaked.begin(),
+                                                        bit16_array_with_b_and_breaked.end(), line_array[1]);
+    vector<string>::iterator bit16_reg_w_breaked = find(bit16_array_with_w_and_breaked.begin(),
+                                                        bit16_array_with_w_and_breaked.end(), line_array[1]);
     string variable = "";
     unsigned char variable_value;
     string variable_type = "";
     int keep_index = 0;
-    for (auto const variable_temp:variable_array) {
+    bool var_is=false;
+    for (auto const variable_temp:variable_array) //this for traverse the specific array to find variable name and type if necessary
+    {
         if (variable_temp.first == line_array[(line_array[1] == "b" || line_array[1] == "w") ? 2 : 1]) {
             variable = variable_temp.first;
             variable_type = variable_temp.second;
+            var_is=true;
             break;
         }
         keep_index++;
     }
     if(!index_keeper.empty())
         keep_index=index_keeper[keep_index];
-    if (bit16_reg != bit16_array.end() || bit8_reg != bit8_array.end()) {
+    if (bit16_reg != bit16_array.end() || bit8_reg != bit8_array.end()) //if 16 or 8 bit register is in process
+    {
 
         if (bit16_reg != bit16_array.end()) {
             is_bit16=true;
             unsigned short *ptr;
-            ptr = return_pointer(line_array[1]);
-            if(return_value_of_right_hand_side(2)==-1)
+            ptr = return_pointer(line_array[1]); //returns 16 bit register
+            int a=return_value_of_right_hand_side(2); //this line returns the value of the right hand side ,which is the right of comma in line
+            if(a==-1)
                 return -1;
-            int temp=*ptr - return_value_of_right_hand_side(2);
-            change_flags_only_one_paramether(temp);
+            int temp=*ptr - a;
+            change_flags_only_one_paramether(temp);  //changes the flags according to the result of operation
             *ptr=temp;
         } else if (bit8_reg != bit8_array.end()) {
             is_bit8=true;
             unsigned char *ptr;
             ptr = get8Bit(line_array[1]);
-            if(return_value_of_right_hand_side(2)==-1)
+            int a=return_value_of_right_hand_side(2);//changes the flags according to the result of operation
+            if(a==-1)
                 return -1;
-            int temp=*ptr - return_value_of_right_hand_side(2);
-            change_flags_only_one_paramether(temp);
+            int temp=*ptr - a;
+            change_flags_only_one_paramether(temp); //changes the flags according to result
             *ptr=temp;
         }
-    } else if (line_array[1].at(0) == '[' && line_array[1].at(line_array[1].size() - 1) == ']') {
-        is_bit16=true;
+    } else if ((line_array[1].at(0) == '[' && line_array[1].at(line_array[1].size() - 1) == ']')||
+            (bit16_reg_b_breaked!=bit16_array_with_b_and_breaked.end() || bit16_reg_w_breaked!=bit16_array_with_w_and_breaked.end()) ||
+            ((line_array[1][0]=='w' || line_array[1][0]=='b') && line_array[1][line_array[1].size()-1]==']')) {
+        is_bit16=true; is_bit8=true;
         int location = calculate_index(1);
         int value = return_value_of_right_hand_side(2);
         if(value==-1)
             return -1;
-        int deger = memory[location] + ((location + 1) < (pow(2, 16)) ? (memory[location + 1] << 8) : 0);
-        int result = deger - value;
-        change_flags_only_one_paramether(result);
+        bool temp=false; int deger=0;
+        if( (line_array[1].at(0) == '[' && line_array[1].at(line_array[1].size() - 1) == ']') ||
+        (bit16_reg_w_breaked!=bit16_array_with_w_and_breaked.end()) || (line_array[1][0]=='w')) //is it 16 bit process
+            temp=true;
+        if(temp)
+            deger= memory[location] + ((location + 1 )< (pow(2, 16)) ? (memory[location + 1] << 8) : 0);
+        else
+            deger= memory[location];
+        int result = deger-value;
+        change_flags_only_one_paramether(result); //change flags according to result
         int head_of_8 = (result >> 8);
         int  tail_8 = last_8bit(result);
         memory[location] = tail_8;
         if (location + 1 < (pow(2, 16)))
             memory[location + 1] = head_of_8;
-    } else if (line_array[1] == "b" || line_array[1] == "w" || variable == line_array[1])
-        if (line_array[1] == "b") {
+    } else if (line_array[1] == "b" || line_array[1] == "w" || var_is)//is it var ?
+    {       is_var_global=true;
+        if ((line_array[1] == "b" )||(variable_type == "db" && line_array[1]==variable)) {
             is_bit8=true;
             int value = memory[keep_index];
-            int deger_of_right = return_value_of_right_hand_side(3);
-            if(deger_of_right==-1)
+            int deger_of_right = return_value_of_right_hand_side(line_array[1] == "b" ? 3 : 2);
+            if( deger_of_right==-1 || value<0 )
                 return -1;
             memory[keep_index] = value - deger_of_right;
             change_flags_only_one_paramether(memory[keep_index]);
-        } else if (line_array[1] == "w" || variable == line_array[1]) {
+        } else if ((line_array[1] == "w" )||(variable_type == "dw" && line_array[1]==variable)) {
             is_bit16=true;
             int deger = memory[keep_index] + (((keep_index + 1) < (pow(2, 16))) ? (memory[keep_index + 1] << 8) : 0);
-            int value = return_value_of_right_hand_side(variable == line_array[1] ? 2 : 3);
+            int value = return_value_of_right_hand_side(variable == line_array[1] ? 2 : 3); //returns value of right side
             if(value==-1)
                 return -1;
             int result=deger-value;
-            change_flags_only_one_paramether(result);
-            int head_of_8 = (result >> 8);
-            int tail_8 = last_8bit(result);
+            change_flags_only_one_paramether(result); //change flags
+            int head_of_8 = (result >> 8);  //the most significant 8 bit
+            int tail_8 = last_8bit(result);  //the lest significant 8 bit
             memory[keep_index] = tail_8;
             if (keep_index + 1 < (pow(2, 16)))
                 memory[keep_index + 1] = head_of_8;
         }
+    }else return -1;
     return 0;
 }
 void change_flag_acc_to(int byte){
@@ -721,8 +833,9 @@ int mul(int i) {
     unsigned char variable_value;
     string variable_type = "";
     int keep_index = 0; bool var_is=false;
-    for (auto const variable_temp:variable_array) {
-        if (variable_temp.first == line_array[(line_array[1] == "b" || line_array[1] == "w") ? 2 : 1]) {
+    for (auto const variable_temp:variable_array) //traverse whole array to find var type and name
+    {
+        if (variable_temp.first == line_array[2]) {
             variable = variable_temp.first;
             variable_type = variable_temp.second;
             var_is=true;
@@ -732,39 +845,40 @@ int mul(int i) {
     }
     if(!index_keeper.empty())
         keep_index=index_keeper[keep_index];
-    if (y != bit8_array.end()) {
+    if (y != bit8_array.end()) //checks 8 bit reg
+    {
         unsigned char *ptr;
         ptr = get8Bit(line_array[1]);
         long long  int value = *pal * *ptr;
         if (value > 0xFF)
             value%=0xFF;
         *pax=value;
-        if (*pah != 0)
-            CF = OF = 1;
-        else CF = 0;
-    } else if (bit16_with_b_breaked != bit16_array_with_b_and_breaked.end()) {
+        change_flag_acc_to(16); //change flags
+    } else if (bit16_with_b_breaked != bit16_array_with_b_and_breaked.end()) // checks reg with breaked b[  ]
+    {
         unsigned char *ptr;
         string s = "";s.push_back(line_array[1].at(2));s.push_back(line_array[1].at(3));
-        ptr = (unsigned char *) return_pointer(s);
+        ptr = (unsigned char *) return_pointer(s); //returns pointer
         long long int result = *pal * memory[*ptr];
         if (result > pow(2, 16))
             result%=(2<<15);
         *pax = result;
-        change_flag_acc_to(16);
-    } else if (x != bit16_array.end()) {
-        long long int value = (*pdx << 16) + *pax;
+        change_flag_acc_to(16);  //changes according to result;
+    } else if (x != bit16_array.end())  //checks 16 bit reg
+    {
         unsigned short *ptr;
-        ptr = return_pointer(line_array[1]);
-        value *= *ptr;
+        ptr = return_pointer(line_array[1]); //returns pointer
+        long long int value = *pax * *ptr;
         if (value > (pow(2, 32)))
             value%=((long long)pow(2,32));
         *pdx = (value >> 16);
         *pax =last_16bit( value);
-        change_flag_acc_to(32);
-    } else if (bit16_with_w_breaked != bit16_array_with_w_and_breaked.end()) {
+        change_flag_acc_to(32);  //change flags
+    } else if (bit16_with_w_breaked != bit16_array_with_w_and_breaked.end()) //check 16 bit reg with breaked w[  ]
+    {
         unsigned short *ptr;
         string s = "";s.push_back(line_array[1].at(2));s.push_back(line_array[1].at(3));
-        ptr = return_pointer(s);
+        ptr = return_pointer(s);  //returns 16 bit register
         int deger = memory[*ptr] + (((*ptr + 1) < (pow(2, 16))) ? (memory[*ptr + 1] << 8) : 0);
         long long int result = deger * *ptr;
         if (result > pow(2, 32))
@@ -773,85 +887,90 @@ int mul(int i) {
         int  tail = last_16bit(result);
         *pax = tail;
         change_flag_acc_to(32);
-    } else if (line_array[1].at(0) == 'w' || line_array[1].at(0) == 'b')//memory
+    } else if ((line_array[1].at(0) == 'w' || line_array[1].at(0) == 'b')&& line_array[1][line_array[1].size()-1]==']')//is it memory
     {
-        int location;
-        if (line_array[1].at(line_array[1].size() - 2) == 'h' && line_array[1].at(0) == '0')
+        int location; string temp_location=line_array[1].substr(line_array[1].find_first_of('[')+1,line_array[1].length());
+        temp_location=temp_location.substr(0,temp_location.find_last_of(']'));
+
+        if (temp_location[temp_location.size()-1] == 'h' ||temp_location[temp_location.size()-1] == 'H' || temp_location[0] == '0')//it it hex number
             location = calculate_index(1);
-        else if (line_array[1].at(line_array[1].size() - 2) == 'd') {
-            string s = "";s.push_back(line_array[1].at(2));s.push_back(line_array[1].at(3));
+        else if (temp_location[temp_location.size()-1] == 'd' || (temp_location[temp_location.size()-1] == 'D'))  //is it decimal number
+        {
+            string s = "";
+            if(temp_location[temp_location.size()-1] == 'd')
+                s=temp_location.substr(0,temp_location.find_last_of('d'));
+            else if(temp_location[temp_location.size()-1] == 'D')
+                s=temp_location.substr(0,temp_location.find_last_of('D'));
             location = stoi(s);
         } else location = stoi(line_array[1]);
         if (line_array[1].at(0) == 'w') {
             long long int result =*pax * (memory[location] + (location + 1 < (pow(2, 16)) ? (memory[location + 1] << 8) : 0));
             if(result>(pow(2,32)))
-                result%=(long long)(pow(2,32));
-            *pdx = result >> 16;
+            result%=(long long)(pow(2,32));
+            *pdx = (result >> 16);
             int  tail = last_16bit(result);
             *pax = tail;
             change_flag_acc_to(32);
         } else {
-            int result = *pal * memory[location];
+           long long int result = *pal * memory[location];
             if(result>(pow(2,16)))
                 result%=(long long)(pow(2,16));
             *pax = result;
             change_flag_acc_to(32);
         }
-    } else if (line_array[1] == "w" || line_array[1] == "b" || var_is)// sayı veya variable
+    } else if (line_array[1] == "w" || line_array[1] == "b"  || var_is)// sayı veya variable
     {
-        if(var_is && variable==line_array[1]){
-            if (line_array[1] == "w") {
-                int result = *pax * ((memory[keep_index]+(memory[keep_index+1]<<8)));
+        if(var_is){     //is it var ?
+            if (line_array[1] == "w") {  //is it word size ?
+                long long int result =  *pax * ((memory[keep_index]+(memory[keep_index+1]<<8)));
                 if(result>(pow(2,32)))
                     result%=(long long)(pow(2,32));
-                int tail = last_16bit(result);
-                *pax = tail;
+                *pdx=(result>>16);
+                *pax = last_16bit(result);
                 change_flag_acc_to(32);
-            } else {
-                int result = *pal * (memory[keep_index]);
+            } else if(line_array[1]=="b"){   //is it byte size ?
+                long long int result = *pal * (memory[keep_index]);
                 *pax = result;
-                change_flag_acc_to(16);
-            }
+                change_flag_acc_to(16);     //change flags
+            }else return -1;
         }
         else{
-            int asci = line_array[2].at(0);
-            if (asci >= 48 && asci <= 57)//sayı
-            {
-                int sayi = 0;
+            int sayi = 0;
+            if(line_array[2][0]!='\''){
                 if (line_array[2].at(line_array[2].size() - 1) == 'h' && line_array[2].at(0) == '0')
                     sayi = calculate_index(2);
                 else if (line_array[2].at(line_array[2].size() - 1) == 'd')
                     sayi = stoi(line_array[2].substr(0, line_array[2].size() - 1));
                 else
                     sayi = stoi(line_array[2]);
-                if (line_array[1] == "w") {
-                    int result = *pax * sayi;
-                    if(result>(pow(2,32)))
-                        result%=(long long)(pow(2,32));
-                    *pdx = (result >> 16);
-                    int  tail =last_16bit( result);
-                    *pax = tail;
-                    change_flag_acc_to(32);
-                } else {
-                    int result = *pal * sayi;
-                    if(result>(pow(2,16)))
-                        result%=(long long)(pow(2,16));
-                    *pax = result;
-                    change_flag_acc_to(32);
-                }
-            }
+            }else sayi=line_array[2][1];
+
+            if(line_array[1]=="w"){
+               long long  int result = *pax * sayi;
+                if(result>(pow(2,32)))
+                    result%=(long long)(pow(2,32));
+                *pdx = (result >> 16);
+                int  tail =last_16bit( result);
+                *pax = tail;
+                change_flag_acc_to(32);
+            }else if(line_array[1]=="b"){
+               long long  int result = *pal * sayi;
+                if(result>(pow(2,16)))
+                    result%=(long long)(pow(2,16));
+                *pax = result;
+                change_flag_acc_to(16);
+            }else return -1;
         }
     } else
         return -1;
     return 0;
 }
-int control_overflow(int a, int b, int byte) {
+int control_overflow(int a, int b, int byte){//this function controls overflow anly for div instruction
     if ((((a / b) > pow(2, byte))) || ((a % b) > pow(2, byte)))
         return 1;
     return 0;
 }
 int div(int i) {
-    int multiplier = return_value_of_right_hand_side(line_array[1] != "b" || line_array[1] != "w" ? 1 : 2);
     vector<string>::iterator x, y, x1, y1, bit16_with_breaked, bit16_with_b_breaked, bit16_with_w_breaked, reg;
     x = find(bit16_array.begin(), bit16_array.end(), line_array[1]);
     y = find(bit8_array.begin(), bit8_array.end(), line_array[1]);
@@ -861,8 +980,9 @@ int div(int i) {
     unsigned char variable_value;
     string variable_type = "";
     int keep_index = 0; bool var_is=false;
-    for (auto const variable_temp:variable_array) {
-        if (variable_temp.first == line_array[(line_array[1] == "b" || line_array[1] == "w") ? 2 : 1]) {
+    for (auto const variable_temp:variable_array)
+    {
+        if (variable_temp.first == line_array[2]) {
             variable = variable_temp.first;
             variable_type = variable_temp.second;
             var_is=true;
@@ -872,13 +992,13 @@ int div(int i) {
     }
     if(!index_keeper.empty())
         keep_index=index_keeper[keep_index];
-    if (x != bit16_array.end()) {
+    if (x != bit16_array.end()) { //is it 16 bit reg
         unsigned short *ptr;
         ptr = return_pointer(line_array[1]);
         if(ptr== nullptr || *ptr==0)
             return -1;
         int value = (*pdx << 16) + *pax;
-        if (control_overflow(value, *ptr, 16) == 1)
+        if (control_overflow(value, *ptr, 16) == 1) //check that there is overflow or not
             return 1;
         int kalan = value % *ptr;
         int bolum = value / *ptr;
@@ -888,15 +1008,15 @@ int div(int i) {
         ptr = get8Bit(line_array[1]);
         if(ptr== nullptr || *ptr==0)
             return -1;
-        if (control_overflow(*pax, *ptr, 8) == 1)
+        if (control_overflow(*pax, *ptr, 8) == 1) //check that there is overflow or not
             return 1;
         int kalan = *pax % *ptr;
         int bolum= *pax / *ptr;
         *pah=kalan; *pal=bolum;
-    } else if (bit16_with_b_breaked != bit16_array_with_b_and_breaked.end()) {
+    } else if (bit16_with_b_breaked != bit16_array_with_b_and_breaked.end()) { //is b breaked 16 bit register such as b[di]
         unsigned short *ptr;
         string s = "";s.push_back(line_array[1].at(2));s.push_back(line_array[1].at(3));
-        ptr =  return_pointer(s);
+        ptr =  return_pointer(s); //return 16 bit register
         if(ptr== nullptr)
             return -1;
         if (control_overflow(*pax, memory[*ptr], 8) == 1)
@@ -904,32 +1024,33 @@ int div(int i) {
         int kalan = *pax % memory[*ptr];
         int bolum = *pax / memory[*ptr];
         *pdx=kalan; *pax=bolum;
-    } else if (bit16_with_w_breaked != bit16_array_with_w_and_breaked.end()) {
+    } else if (bit16_with_w_breaked != bit16_array_with_w_and_breaked.end()) //is it w breaked reg such as w[si]
+    {
         unsigned short *ptr;
         string s = "";s.push_back(line_array[1].at(2));s.push_back(line_array[1].at(3));
         ptr = return_pointer(s);
-        if(ptr== nullptr)
-            return -1;
         int value = (*pdx << 16) + *pax;
-        if (control_overflow(value, (memory[*ptr] + (*ptr + 1 < (2 << 16)) ? (memory[*ptr + 1] << 8) : 0), 16) == 1)
+        int tt=(memory[*ptr] + (*ptr + 1 < (2 << 16)) ? (memory[*ptr + 1] << 8) : 0);
+        if (control_overflow(value,tt , 16) == 1)
             return 1;
-        int kalan = value % (memory[*ptr] + (((*ptr + 1) < (2 << 15)) ? (memory[*ptr + 1] << 8) : 0));
-        int bolum = value / (memory[*ptr] + (((*ptr + 1) < (2 << 15)) ? (memory[*ptr + 1] << 8) : 0));
+        int kalan = value % tt;
+        int bolum = value / tt;
         *pdx=kalan;*pax=bolum;
     } else if ((line_array[1].at(0) == 'w' || line_array[1].at(0) == 'b') && line_array[1].at(1) == '[')//memory
     {
-        int location;
-        if (line_array[1].at(line_array[1].size() - 2) == 'h' && line_array[1].at(0) == '0')
+        int location; string temp=line_array[1].substr(line_array[1].find_first_of('[')+1,line_array[1].size()-1);
+        temp=temp.substr(0,temp.find_last_of(']'));
+        if ((line_array[1].at(line_array[1].size() - 2) == 'h' || line_array[1].at(0) == '0' || temp[temp.size()-1]=='H')) //is it hexadecimal number
             location = calculate_index(1);
-        else if (line_array[1].at(line_array[1].size() - 2) == 'd') {
+        else if ((temp[temp.size()-1]=='d' || temp[temp.size()-1]=='D')&&(temp[0]!='0')) {
             location = stoi(line_array[1].substr(2, line_array[1].size() - 2));
         } else
             location = stoi(line_array[1]);
-        if (line_array[1].at(0) == 'w') {
+        if (line_array[1][0] == 'w') {
             int value = (*pdx << 16) + *pax;
-            if (control_overflow(value,  (memory[location] +((location + 1 < (2 << 16)) ? (memory[location + 1] << 8) : 0)), 16) == 1)
-                return 1;
             int sayi=(memory[location] + (((location + 1) < (2 << 16)) ? (memory[location + 1] << 8) : 0));
+            if (control_overflow(value,  sayi, 16) == 1)
+                return 1;
             if(sayi==0 || (value==0 && sayi==0))
                 return -1;
             int kalan = value % sayi;
@@ -961,19 +1082,18 @@ int div(int i) {
             int bolum = value / deger;
             *pdx=kalan;*pax=bolum;
         }else{
-            int asci = line_array[2].at(0);
             int sayi = 0;
-            if (line_array[2].at(line_array[2].size() - 1) == 'h' && line_array[2].at(0) == '0')
+            if (line_array[2].at(line_array[2].size() - 1) == 'h' || line_array[2].at(0) == '0' || line_array[2][line_array[2].size()-1]=='H')  //check is hex number
                 sayi = calculate_index(2);
-            else if (line_array[2].at(line_array[2].size() - 1) == 'd')
+            else if (line_array[2].at(line_array[2].size() - 1) == 'd' || line_array[2][line_array[2].size()-1]=='D') // is decimal number
                 sayi = stoi(line_array[2].substr(0, line_array[2].size() - 1));
             else
-                sayi = stoi(line_array[2]);
-            if (line_array[1] == "w") {
+                sayi = stoi(line_array[2]);  //decimal
+            if(line_array[1] == "w") {
                 int value = (*pdx << 16) + *pax;
                 if (control_overflow(value, sayi, 16) == 1)
                     return 1;
-                if(sayi==0 || (value==0 && sayi==0))
+                if(sayi==0 || (value==0 && sayi==0)) //is 0/0 division or any number/division
                     return -1;
                 int kalan = value % sayi;
                 int bolum = value / sayi;
@@ -981,7 +1101,7 @@ int div(int i) {
             } else {
                 if (control_overflow(*pax, sayi, 8) == 1)
                     return 1;
-                if((sayi==0) || (*pax==0 && sayi==0))
+                if((sayi==0) || (*pax==0 && sayi==0)) //is 0/0 division or any number/division
                     return -1;
                 int kalan = *pax % sayi;
                 int bolum = *pax / sayi;
@@ -1001,49 +1121,76 @@ int no_t(int i) {
                                 line_array[1]);
     bit16_with_b_breaked = find(bit16_array_with_b_and_breaked.begin(), bit16_array_with_b_and_breaked.end(),
                                 line_array[1]);
-
-    if (x != bit16_array.end() || x1 != bit8_array.end()) {
+    string variable = "";
+    unsigned char variable_value;
+    string variable_type = "";
+    int keep_index = 0; bool var_is=false;
+    for (auto const variable_temp:variable_array)//travers variable array to find var name and type
+    {
+        if (variable_temp.first == line_array[2]) {
+            variable = variable_temp.first;
+            variable_type = variable_temp.second;
+            var_is=true;
+            break;
+        }
+        keep_index++;
+    }
+    if(!index_keeper.empty())
+        keep_index=index_keeper[keep_index];
+    if (x != bit16_array.end() || x1 != bit8_array.end()) { //check is it 16 or 8 bit register
         if (x != bit16_array.end()) {
             unsigned short *ptr;
-            ptr = return_pointer(line_array[1]);
+            ptr = return_pointer(line_array[1]); //return pointer
             *ptr = ~*ptr;
         } else {
             unsigned char *ptr;
-            ptr = get8Bit(line_array[1]);
+            ptr = get8Bit(line_array[1]); //return pointer
             *ptr = ~*ptr;
         }
-    } else if (bit16_with_b_breaked != bit16_array_with_b_and_breaked.end() ||
-               bit16_with_w_breaked != bit16_array_with_w_and_breaked.end()) {
-        if (bit16_with_b_breaked != bit16_array_with_b_and_breaked.end() ||
-            bit16_with_w_breaked != bit16_array_with_w_and_breaked.end()) {
+    } else if (bit16_with_b_breaked != bit16_array_with_b_and_breaked.end() || bit16_with_w_breaked != bit16_array_with_w_and_breaked.end()) { //is it breaked register
             string ss = line_array[1].substr(2, line_array[1].size() - 1);
-            if (bit16_with_w_breaked != bit16_array_with_w_and_breaked.end()) {
+            if (bit16_with_w_breaked != bit16_array_with_w_and_breaked.end()) { //is it w breaked register such as w[bp]
                 unsigned short *ptr;
-                ptr = return_pointer(ss);
+                ptr = return_pointer(ss); //return register
                 int deger = memory[*ptr] + (*ptr + 1 < (pow(2, 16))) ? (memory[*ptr + 1] << 8) : 0;
                 deger = ~deger;
-                int  tail =last_8bit( deger);
+                int  tail =last_8bit( deger); //the least significant 8 bit
                 memory[*ptr] = tail;
                 if (*ptr + 1 < (pow(2, 16)))
-                    memory[*ptr + 1] = (deger >> 8);
-            } else {
+                    memory[*ptr + 1] = (deger >> 8); //the most 8 significant bit
+            } else { //is it b breaked register such as b[bx]
                 unsigned char *ptr;
                 ptr = get8Bit(ss);
                 memory[*ptr] = ~memory[*ptr];
             }
-        }
-    } else if (line_array[1].at(0) == '[' && line_array[1].at(line_array[1].size() - 1)) {
-        int location = 0;
-        if (line_array[1].at(line_array[1].size() - 2) == 'h') {
-            location = hec_to_dec(line_array[1].substr(1, line_array[1].size() - 1));
-            int deger = memory[location] + (location + 1 < (pow(2, 16))) ? (memory[location + 1] << 8) : 0;
-            deger = ~deger;
-            int tail = last_8bit(deger);
-            memory[location] = tail;
-            if (location + 1 < (pow(2, 16)))
-                memory[location + 1] = (deger >> 8);
-        }
-    }
+    } else if ((line_array[1][0] == 'w' || line_array[1][0]=='b') && line_array[1].at(line_array[1].size() - 1)==']') { //is it memory direct addresing
+        int location = 0; string ss=line_array[1].substr(line_array[1].find_first_of('[')+1,line_array[1].length());
+        ss=ss.substr(0,ss.find_last_of(']'));
+        if (ss[ss.size()-1] == 'h' || ss[ss.size()-1] == 'H' || ss[0] == '0')  //is it hexadecimal number
+            location = convert_from_hexadecimal_to_decimal(ss);
+        else if ((ss[ss.size()-1]=='d' || ss[ss.size()-1]=='D') && (line_array[1][0]!='0')) //is it decimal number
+            location=stoi(ss.substr(0,ss.size()-1));
+        else location=stoi(ss);
+        int deger = memory[location] + (location + 1 < (pow(2, 16))) ? (memory[location + 1] << 8) : 0;
+        deger = ~deger;
+        int tail = last_8bit(deger);
+        memory[location] = tail;
+        if (location + 1 < (pow(2, 16)))
+             memory[location + 1] = (deger >> 8);
+    }else if(var_is){  //is it variable
+        if(line_array[1]=="w"){   //is it word size
+            int deger=memory[keep_index]+(memory[keep_index]<<8);  //take the value of memory in specific index
+            deger=~deger;
+            int tail=last_8bit(deger);
+            int head=(deger>>8);
+            memory[keep_index]=tail;
+            memory[keep_index+1]=head;
+        }else if(line_array[1]=="b"){ //is it byte size
+            int deger=memory[keep_index];
+            deger=~deger;
+            memory[keep_index]=deger;
+        }else return -1;
+    }else return -1;
     return 0;
 }
 int x_or(int i) {
@@ -1636,7 +1783,7 @@ int rcl(int i) {
     return 0;
 }
 int push(int i) {
-    is_bit16=true;
+    is_bit16=true; //push the value into top of stack
     if (return_value_of_right_hand_side(1) < (2 << 15)) {
         int head_8bit = (return_value_of_right_hand_side(1) >> 8);
         int value = return_value_of_right_hand_side(1);
@@ -1650,10 +1797,10 @@ int push(int i) {
         return -1;
     return 0;
 }
-int nop(int i) {
+int nop(int i) {//does nothing
     return 0;
 }
-int pop(int i) {
+int pop(int i) { // returns value in the top of the stack
     vector<string>::iterator regbul = find(bit16_array.begin(), bit16_array.end(), line_array[1]);
     unsigned short *ptr;
     ptr = return_pointer(line_array[1]);
@@ -1828,7 +1975,7 @@ int compare(int i) {
         return -1;
     return 0;
 }
-int JZ_JE(int i) {
+int JZ_JE(int i) { // Jump if zero (Zero flag set)
     if (line_array[0] == "jz" || line_array[0] == "je") {
         line_array[1].push_back(':');
         vector<string>::iterator o = find(code_array.begin(), code_array.end(), line_array[1]);
@@ -1839,7 +1986,7 @@ int JZ_JE(int i) {
     }
     return 0;
 }
-int JNE_JNZ(int i) {
+int JNE_JNZ(int i) {  //Jump if not zero (Zero flag clear)
     if (line_array[0] == "jne" || line_array[0] == "jnz") {
         line_array[1].push_back(':');
         vector<string>::iterator o = find(code_array.begin(), code_array.end(), line_array[1]);
@@ -1850,7 +1997,7 @@ int JNE_JNZ(int i) {
     }
     return 0;
 }
-int JA_JNBE(int i) {
+int JA_JNBE(int i) { //Jump if not below or equal (same as JA)
     if (line_array[0] == "ja" || line_array[0] == "jnbe") {
         line_array[1].push_back(':');
         vector<string>::iterator o = find(code_array.begin(), code_array.end(), line_array[1]);
@@ -1861,7 +2008,7 @@ int JA_JNBE(int i) {
     }
     return 0;
 }
-int JB_JC_JNAE(int i) {
+int JB_JC_JNAE(int i) { //Jump if not above or equal (same as JB)
     if (line_array[0] == "jb" || line_array[0] == "jc" || line_array[0] == "jnae") {
         line_array[1].push_back(':');
         vector<string>::iterator o = find(code_array.begin(), code_array.end(), line_array[1]);
@@ -1872,7 +2019,7 @@ int JB_JC_JNAE(int i) {
     }
     return 0;
 }
-int JBE(int i) {
+int JBE(int i) { // Jump if below or equal (if leftOp  rightOp)
     if (line_array[0] == "jbe") {
         line_array[1].push_back(':');
         vector<string>::iterator o = find(code_array.begin(), code_array.end(), line_array[1]);
@@ -1884,7 +2031,7 @@ int JBE(int i) {
     }
     return 0;
 }
-int JNB_JAE(int i) {
+int JNB_JAE(int i) { //Jump if not below (same as JAE)
     if (line_array[0] == "jnb" || line_array[0] == "jae") {
         line_array[1].push_back(':');
         vector<string>::iterator o = find(code_array.begin(), code_array.end(), line_array[1]);
@@ -1896,21 +2043,21 @@ int JNB_JAE(int i) {
     return 0;
 }
 int JNC(int i) {
-    if (line_array[0] == "jnc") {
+    if (line_array[0] == "jnc") { //Jump if not carry
         line_array[1].push_back(':');
         vector<string>::iterator o = find(code_array.begin(), code_array.end(), line_array[1]);
-        if (o == code_array.end())
+        if (o == code_array.end())  //is there any label
             return -1;
         if (!CF)
             p = --o;
     }
     return 0;
 }
-int JMP(int i) {
+int JMP(int i) { //jump no need any condition
     if (line_array[0] == "jmp") {
         line_array[1].push_back(':');
         vector<string>::iterator o = find(code_array.begin(), code_array.end(), line_array[1]);
-        if (o == code_array.end())
+        if (o == code_array.end()) //is there any label
             return -1;
 
         p = --o;
@@ -1975,23 +2122,28 @@ int calculate_index(int arr_num) { // CALCALUTES MEMORY LOCATİON
     location_of_memory_s=line_array[arr_num].substr(line_array[arr_num].find_first_of('[')+1,line_array[arr_num].length());
     location_of_memory_s=location_of_memory_s.substr(0,location_of_memory_s.find_last_of(']'));
 
+    unsigned short *ptr; ptr=return_pointer(location_of_memory_s);
+    if(ptr!= nullptr)
+        return *ptr;
     if (location_of_memory_s[location_of_memory_s.size() - 1] == 'h')
-        location_of_memory=hec_to_dec(location_of_memory_s);// converting from Hexadec to Dec
+        return convert_from_hexadecimal_to_decimal(location_of_memory_s);// converting from Hexadec to Dec
     else if(location_of_memory_s[location_of_memory_s.size() - 1] == 'd')
-        location_of_memory=stoi(location_of_memory_s.substr(0,location_of_memory_s.size()-1));
-    else
-        location_of_memory = stoi(location_of_memory_s);
-
-    if (location_of_memory > (2 << 15)) { // mem 64k
-        return -1;
+        return stoi(location_of_memory_s.substr(0,location_of_memory_s.size()-1));
+    else{
+        bool hex=false;
+        for (int i = 0; i <location_of_memory_s.size(); ++i) {
+            if((location_of_memory_s[i]>=65 && location_of_memory_s[i]<=70)||(location_of_memory_s[i]>=97 && location_of_memory_s[i]<=102))
+            {hex=true; break;}
+        }
+        if(hex)
+            return convert_from_hexadecimal_to_decimal(location_of_memory_s);
+        else
+            return stoi(location_of_memory_s);
     }
-    return location_of_memory;
-}
-int hec_to_dec(string tmpstr) {
-    tmpstr.at(tmpstr.size() - 1) = ' '; // sondaki h yi sil
-    return convert_from_hexadecimal_to_decimal(tmpstr);
+    return 0;
 }
 int convert_from_hexadecimal_to_decimal(string hex_val) {
+    hex_val=hex_val.substr(0,hex_val.size()-2);
     int len = hex_val.size();
     int base = 1;
     int dec_val = 0;
@@ -2009,7 +2161,7 @@ int convert_from_hexadecimal_to_decimal(string hex_val) {
     }
     return dec_val;
 }
-int return_value_of_right_hand_side(int index) {
+int return_value_of_right_hand_side(int index) { //this funciton returns the value of the rest of comma int the line by eliminating staffs
     vector<string>::iterator x, y, x1, y1, bit16_with_breaked, bit16_with_b_breaked, bit16_with_w_breaked, reg;
 
     x = find(bit16_array.begin(), bit16_array.end(), line_array[index]);
@@ -2021,13 +2173,13 @@ int return_value_of_right_hand_side(int index) {
     bit16_with_b_breaked = find(bit16_array_with_b_and_breaked.begin(), bit16_array_with_b_and_breaked.end(),
                                 line_array[index]);
     int asci_value;
-    if(line_array[index].at(0)=='\'')
+    if(line_array[index].at(0)=='\'') //checks is it char or not
         asci_value=line_array[index][1];
     else asci_value=line_array[index][0];
     int keep_index=0;
     string variable = "";
     bool is_it_variable=false;
-    for (auto const variable_temp:variable_array) {
+    for (auto const variable_temp:variable_array) { //traverse of var array to obtain name and type
         if (variable_temp.first == line_array[(line_array[index]=="w" || line_array[index]=="b") ? (index+1) : index]){
             variable = variable_temp.first;
             is_it_variable=true;
@@ -2038,45 +2190,48 @@ int return_value_of_right_hand_side(int index) {
     int ooo=keep_index;
     if(!index_keeper.empty())
         keep_index=index_keeper[keep_index];
-    if (line_array[index] == "offset")//reg-adress || mov [01h], offset (w || b) v1 //returns value of v1
+    if (line_array[index] == "offset")//check this addres of the anything
     {
-        if (line_array[3].at(0) == 'w' || line_array[3].at(0) == 'b' ||
-            (line_array[3].at(line_array[3].size() - 1) == ']' || line_array[3].at(0) == '['))
-            if (line_array[3].at(line_array[3].size() - 2) == 'h')
-                return hec_to_dec(line_array[3]);
-            else
-                return stoi(line_array[3].substr((line_array[3].at(0) == 'b' || line_array[3].at(0) == 'w') ? 2 : 1,
-                                                 line_array[3].size() - 1));
+        if (line_array[3].at(0) == 'w' || line_array[3].at(0) == 'b' || (line_array[3].at(line_array[3].size() - 1) == ']' || line_array[3].at(0) == '[')){
+            string s=line_array[3].substr(line_array[3].find_first_of('[')+1,line_array[3].length());
+            s=s.substr(0,s.find_last_of(']'));
+            if (line_array[3].at(line_array[3].size() - 2) == 'h' || line_array[3].at(line_array[3].size() - 2) == 'H' || s[0]=='0'){
+                return convert_from_hexadecimal_to_decimal(s);
+            }
+            else if((s[s.size()-1]=='d'||s[s.size()-1]=='D')&&s[0]!='0'){
+                s=s.substr(0,s.size()-2);
+                return stoi(s);
+            }else return stoi(s);
+
+        }
         string n = "";
-        int variable_index = 0;
-        for (auto const l:variable_array) {
-            if (l.first ==
-                line_array[(line_array[index + 1] != "w" || line_array[index + 1] != "b") ? index + 1 : index + 2]) {
+        int variable_index = 0; bool var_is=false;
+        for (auto const l:variable_array) { //traverse to find addres of var
+            if (l.first ==line_array[(line_array[index + 1] != "w" || line_array[index + 1] != "b") ? index + 1 : index + 2]) {
                 n = l.first;
+                var_is=true;
                 break;
             }
             variable_index++;
         }
         if(!index_keeper.empty())
             variable_index=index_keeper[variable_index];
-        if (n == line_array[line_array[index + 1] != "w" || "b" ? index + 1 : index + 2])
+        if (var_is)
             return variable_index;
-        return -1;
 
+        return -1;
     }
     if (x != bit16_array.end() || x1 != bit8_array.end()) //reg-reg --- mov ax,cx || mov al,cl
     {
-        if (x != bit16_array.end() && is_bit16)
+        if (x != bit16_array.end() && is_bit16) //is it 16 bit reg
             return *return_pointer(line_array[index]);
-        else if(x1 != bit8_array.end() && is_bit8)
+        else if(x1 != bit8_array.end() && is_bit8) //is it 8 bit reg
             return *get8Bit(line_array[index]);
         else return -1;
     }
     if (bit16_with_breaked !=
         bit16_array_with_breaked.end()) //reg-b[reg] ---mov ah, b[bx] ----- //reg-[reg] --mov cx,[bx] -- mov di,[si] -- mov ax,[di] ---//reg-w[reg]-- mov ax, w[bx]
     {
-        if(is_it_variable && is_bit8)
-            return -1;
         unsigned short *ptr;string s = "";s.push_back(line_array[index].at(1));s.push_back(line_array[index].at(2));
         ptr = return_pointer(s);
         return memory[*ptr] + ((*ptr + 1) < pow(2, 16) ? (memory[*ptr + 1] << 8) : 0);
@@ -2090,14 +2245,14 @@ int return_value_of_right_hand_side(int index) {
             return memory[*ptr];
     } else if (line_array[index].at(0) == '[' || line_array[index].at(line_array[index].size() - 1) == ']' ||
                ((line_array[index].at(0) == 'w' || line_array[index].at(0) == 'b') &&
-                line_array[index].size() > 1))//reg-memory|w[memory]|b[memory]
+                line_array[index].size() > 1))     //reg-memory|w[memory]|b[memory]
     {
         if (line_array[index].at(0) == '[')
             return memory[calculate_index(index)] + ((calculate_index(index) + 1 < (pow(2, 16))) ?
                                                      (memory[calculate_index(index) + 1] << 8) : 0);
-        if (line_array[index].at(0) == 'b') {
-            if (line_array[index].at(line_array[index].size() - 2) == 'h'){
-                int location=hec_to_dec(line_array[index].substr(1, line_array[index].size() - 1));
+        if (line_array[index].at(0) == 'b') {  //is it byte
+            if (line_array[index].at(line_array[index].size() - 2) == 'h' || line_array[index].at(line_array[index].size() - 2) == 'H' || line_array[index].at(0) == '0'){
+                int location=convert_from_hexadecimal_to_decimal(line_array[index].substr(1, line_array[index].size() - 2));
                 if(location<0 || location>(2<<15))
                     return -1;
                 return memory[location];
@@ -2113,7 +2268,7 @@ int return_value_of_right_hand_side(int index) {
             int value;
             if (line_array[index].at(line_array[index].size() - 2) == 'h'){
                 string temp=line_array[index].substr(2, line_array[index].size() - 1);
-                int location=hec_to_dec(temp);
+                int location=convert_from_hexadecimal_to_decimal(temp);
                 if(location<0 || location>(2<<15))
                     return -1;
                  value=memory[location]+(memory[location+1]<<8);
@@ -2142,7 +2297,7 @@ int return_value_of_right_hand_side(int index) {
         if (asci_2 >= 48 && asci_2 <= 57)//bu bir sayi --mov [01h],02h //not b
         {
             if (line_array[index + 1].at(line_array[index + 1].size() - 1) == 'h')
-                return hec_to_dec(line_array[index + 1]);
+                return convert_from_hexadecimal_to_decimal(line_array[index + 1]);
             else if (line_array[index + 1].at(line_array[index + 1].size() - 1) == 'd') {
                 string ss = line_array[index + 1].substr(0, line_array[index + 1].size() - 1);
                 return stoi(ss);
@@ -2152,7 +2307,7 @@ int return_value_of_right_hand_side(int index) {
     else if (line_array[index].at(0)!='\'' && asci_value>=48 && asci_value<=57 ||(line_array[index][line_array[index].size()-1]=='h'))//bu bir sayi --mov [01h],02h //not b
     {
         if (line_array[index].at(line_array[index].size() - 1) == 'h')
-            return hec_to_dec(line_array[index]);
+            return convert_from_hexadecimal_to_decimal(line_array[index]);
         else if (line_array[index].at(line_array[index].size() - 1) == 'd') {
             string ss = line_array[index].substr(0, line_array[index].size() - 1);
             return stoi(ss);
@@ -2204,7 +2359,7 @@ int return_value() {
             value = *get8Bit(line_array[3]);
         else {
             if (line_array[3].at(0) == '0' && line_array[3].at(line_array[3].size() - 1) == 'h')
-                value = hec_to_dec(line_array[3]);
+                value = convert_from_hexadecimal_to_decimal(line_array[3]);
             else if (line_array[3].at(line_array[3].size() - 1) == 'd')
                 value = stoi(line_array[3].substr(0, line_array[3].size() - 1));
             else {
@@ -2224,7 +2379,7 @@ int return_value() {
             value = *get8Bit(line_array[2]);
         else {
             if (line_array[2].at(0) == '0' || line_array[2].at(line_array[2].size() - 1) == 'h')
-                value = hec_to_dec(line_array[2]);
+                value = convert_from_hexadecimal_to_decimal(line_array[2]);
             else if (line_array[2].at(line_array[2].size() - 1) == 'd')
                 value = stoi(line_array[2].substr(0, line_array[2].size() - 1));
             else {
@@ -2328,7 +2483,7 @@ int xor_or_and(string s) {
         string s=line_array[1].substr(line_array[1].find_first_of('[')+1,line_array[1].length());s=s.substr(0,s.find_last_of(']'));
         int sayi;
         if (s[0] =='0' || s[s.size()-1] == 'h')
-            sayi = hec_to_dec(s);
+            sayi = convert_from_hexadecimal_to_decimal(s);
         else if (s[s.size()-1] == 'd')
             sayi = stoi(s);
         else
