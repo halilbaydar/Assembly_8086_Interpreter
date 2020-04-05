@@ -1,21 +1,13 @@
 code segment
-mov cx, 3d
-mov dx, 5d
-
-
-
-
-
-
-
-topla cx, dx
-
-
-
-
-
-
-
-int 20h
-var dw 3d
+  mov ax,8010h
+  mov bx,4h
+  mul bx
+  or  dx,8h
+  mov ah,02
+  add dl,40h
+  int 21h
+  add al,1h
+  mov dl,al
+  int 21h
+  int 20h
 code ends
