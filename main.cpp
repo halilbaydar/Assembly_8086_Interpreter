@@ -419,7 +419,7 @@ int mov(int i) {
         else is_bit16=true;
         unsigned short *ptr;
         string s = ""; s.push_back(line_array[1].at(2)); s.push_back(line_array[1].at(3));
-        ptr = return_pointer(s);   //returns 16 bit register
+        ptr = return_pointer(s);    //returns 16 bit register
         int value = return_value_of_right_hand_side(2); //this line returns the value of the right hand side ,which is the right of comma in line
         if (bit16_reg_b_breaked != bit16_array_with_b_and_breaked.end())
             memory[*ptr] = value;
