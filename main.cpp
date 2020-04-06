@@ -98,8 +98,8 @@ vector<string>::iterator p;
 void trim(string& s){
     string temp="";
     for (int i = 0; i < s.size(); ++i) {
-        if(s[i]!=' ')
-            temp+=s[i];
+            if(s[i]!=' ')
+                temp+=s[i];
     }
     s=temp;
 }
@@ -126,7 +126,7 @@ void tokenizer(string s)//this function reads the input given by developer as a 
         if (right_side[right_side.find_first_of('[') - 1] == 'b' || right_side[right_side.find_first_of('[') - 1] == 'w'){
             right_temp = right_side.substr(right_side.find_first_of('[') - 1, right_side.length());
             right_temp = right_temp.substr(0, right_temp.find_last_of(']')+1);
-        }else{
+    }else{
             right_temp=right_side.substr(right_side.find_first_of('['),right_side.length());
             right_temp=right_temp.substr(0,right_temp.find_last_of(']')+1);
         }
@@ -263,222 +263,222 @@ int main(int argc, char *argv[])//main function get the instructions and control
         i++;
         if(line_array.size()>0){
             //to determine which function is processed
-            if (line_array.size() > 2 && line_array[0] == "mov") //this instructions oversees given instruction is mov
+        if (line_array.size() > 2 && line_array[0] == "mov") //this instructions oversees given instruction is mov
+        {
+            if (mov(i) == -1) //this if statemnts controls the value which funciton returns and finish
             {
-                if (mov(i) == -1) //this if statemnts controls the value which funciton returns and finish
-                {
-                    cout << "Error in line :" << i;
-                    return 0;
-                }
-            } else if (line_array[0] == "inc") //this instructions oversees given instruction is inc
+                cout << "Error in line :" << i;
+                return 0;
+            }
+        } else if (line_array[0] == "inc") //this instructions oversees given instruction is inc
+        {
+            int a=inc_dec(1);//this if statemnts controls the value which funciton returns and finish
+            if (a == -1) {
+                cout << "Error in line :" << i;
+                return 0;
+            }
+            else if(a==1){
+                cout << "Overflow in line :" << i;
+                return 0;
+            }
+        } else if (line_array[0] == "dec") //this instructions oversees given instruction is dec
+        {
+            int a=inc_dec(-1);//this if statemnts controls the value which funciton returns and finish
+            if (a == -1) {
+                cout << "Error in line :" << i;
+                return 0;
+            }
+            else if(a==1){
+                cout << "Overflow in line :" << i;
+                return 0;
+            }
+        } else if (line_array.size() > 2 && line_array[0] == "add") //this instructions oversees given instruction is add
+        {
+            int a=add(i) == -1;//this if statemnts controls the value which funciton returns and finish
+            if (a==-1) {
+                cout << "Error in line :" << i;
+                return 0;
+            }
+        } else if (line_array.size() > 2 && line_array[0] == "sub") //this instructions oversees given instruction is sub
+        {
+            int a=sub(i);//this if statemnts controls the value which funciton returns and finish
+            if (a== -1)
             {
-                int a=inc_dec(1);//this if statemnts controls the value which funciton returns and finish
-                if (a == -1) {
-                    cout << "Error in line :" << i;
-                    return 0;
-                }
-                else if(a==1){
-                    cout << "Overflow in line :" << i;
-                    return 0;
-                }
-            } else if (line_array[0] == "dec") //this instructions oversees given instruction is dec
+                cout << "Error in line :" << i;
+                return 0;
+            }
+        } else if (line_array.size() > 0 && line_array[0] == "div") //this instructions oversees given instruction is div
+        {
+            int a = div(i);//this if statemnts controls the value which funciton returns and finish
+            if (a == -1) {
+                cout << "Error in line :" << i;
+                return 0;
+            } else if (a == 1) {
+                cout << "Overflow in line : " << i;
+                return 0;
+            }
+        } else if (line_array.size() > 0 && line_array[0] == "mul") //this instructions oversees given instruction is mul
+        {
+            int a = mul(i);//this if statemnts controls the value which funciton returns and finish or continue the process
+            if (a == -1) {
+                cout << "Error in line :" << i;
+                return 0;
+            }
+        } else if (line_array[0] == "xor") //this instructions oversees given instruction is xor
+        {
+            if (x_or(i) == -1) //this if statemnts controls the value which funciton returns and finish or continue the process
             {
-                int a=inc_dec(-1);//this if statemnts controls the value which funciton returns and finish
-                if (a == -1) {
-                    cout << "Error in line :" << i;
-                    return 0;
-                }
-                else if(a==1){
-                    cout << "Overflow in line :" << i;
-                    return 0;
-                }
-            } else if (line_array.size() > 2 && line_array[0] == "add") //this instructions oversees given instruction is add
+                cout << "Error in line :" << i;
+                return 0;
+            }
+        } else if (line_array[0] == "or") //this instructions oversees given instruction is or
+        {
+            if (o_r(i) == -1) //this if statemnts controls the value which funciton returns and finish or continue the process
             {
-                int a=add(i) == -1;//this if statemnts controls the value which funciton returns and finish
-                if (a==-1) {
-                    cout << "Error in line :" << i;
-                    return 0;
-                }
-            } else if (line_array.size() > 2 && line_array[0] == "sub") //this instructions oversees given instruction is sub
+                cout << "Error in line :" << i;
+                return 0;
+            }
+        } else if (line_array[0] == "and") //this instructions oversees given instruction is and
+        {
+            if (an_d(i) == -1) //this if statemnts controls the value which funciton returns and finish or continue the process
             {
-                int a=sub(i);//this if statemnts controls the value which funciton returns and finish
-                if (a== -1)
-                {
-                    cout << "Error in line :" << i;
-                    return 0;
-                }
-            } else if (line_array.size() > 0 && line_array[0] == "div") //this instructions oversees given instruction is div
+                cout << "Error in line :" << i;
+                return 0;
+            }
+        } else if (line_array[0] == "not") //this instructions oversees given instruction is not
+        {
+            if (no_t(i) == -1)//this if statemnts controls the value which funciton returns and finish or continue the process
             {
-                int a = div(i);//this if statemnts controls the value which funciton returns and finish
-                if (a == -1) {
-                    cout << "Error in line :" << i;
-                    return 0;
-                } else if (a == 1) {
-                    cout << "Overflow in line : " << i;
-                    return 0;
-                }
-            } else if (line_array.size() > 0 && line_array[0] == "mul") //this instructions oversees given instruction is mul
+                cout << "Error in line :" << i;
+                return 0;
+            }
+        } else if (line_array[0] == "rcl") //this instructions oversees given instruction is rcl
+        {
+            if (rcl(i) == -1) //this if statemnts controls the value which funciton returns and finish or continue the process
             {
-                int a = mul(i);//this if statemnts controls the value which funciton returns and finish or continue the process
-                if (a == -1) {
-                    cout << "Error in line :" << i;
-                    return 0;
-                }
-            } else if (line_array[0] == "xor") //this instructions oversees given instruction is xor
+                cout << "Error in line :" << i;
+                return 0;
+            }
+        } else if (line_array[0] == "rcr") //this instructions oversees given instruction is rcr
+        {
+            if (rcr(i) == -1) //this if statemnts controls the value which funciton returns and finish or continue the process
             {
-                if (x_or(i) == -1) //this if statemnts controls the value which funciton returns and finish or continue the process
-                {
-                    cout << "Error in line :" << i;
-                    return 0;
-                }
-            } else if (line_array[0] == "or") //this instructions oversees given instruction is or
+                cout << "Error in line :" << i;
+                return 0;
+            }
+        } else if (line_array[0] == "shl") //this instructions oversees given instruction is shl
+        {
+            if (shl(i) == -1) //this if statemnts controls the value which funciton returns and finish or continue the process
             {
-                if (o_r(i) == -1) //this if statemnts controls the value which funciton returns and finish or continue the process
-                {
-                    cout << "Error in line :" << i;
-                    return 0;
-                }
-            } else if (line_array[0] == "and") //this instructions oversees given instruction is and
+                cout << "Error in line :" << i;
+                return 0;
+            }
+        } else if (line_array[0] == "shr") //this instructions oversees given instruction is shr
+        {
+            if (shr(i) == -1) //this if statemnts controls the value which funciton returns and finish or continue the process
             {
-                if (an_d(i) == -1) //this if statemnts controls the value which funciton returns and finish or continue the process
-                {
-                    cout << "Error in line :" << i;
-                    return 0;
-                }
-            } else if (line_array[0] == "not") //this instructions oversees given instruction is not
+                cout << "Error in line :" << i;
+                return 0;
+            }
+        } else if (line_array[0] == "cmp") //this instructions oversees given instruction is cmp
+        {
+            if (compare(i) == -1) //this if statemnts controls the value which funciton returns and finish or continue the process
             {
-                if (no_t(i) == -1)//this if statemnts controls the value which funciton returns and finish or continue the process
-                {
-                    cout << "Error in line :" << i;
-                    return 0;
-                }
-            } else if (line_array[0] == "rcl") //this instructions oversees given instruction is rcl
+                cout << "Error in line :" << i;
+                return 0;
+            }
+        } else if (line_array[0] == "push") //this instructions oversees given instruction is push
+        {
+            if (push(i) == -1) //this if statemnts controls the value which funciton returns and finish or continue the process
             {
-                if (rcl(i) == -1) //this if statemnts controls the value which funciton returns and finish or continue the process
-                {
-                    cout << "Error in line :" << i;
-                    return 0;
-                }
-            } else if (line_array[0] == "rcr") //this instructions oversees given instruction is rcr
+                cout << "Error in line :" << i;
+                return 0;
+            }
+        } else if (line_array[0] == "pop") //this instructions oversees given instruction is pop
+        {
+            if (pop(i) == -1) //this if statemnts controls the value which funciton returns and finish or continue the process
             {
-                if (rcr(i) == -1) //this if statemnts controls the value which funciton returns and finish or continue the process
-                {
-                    cout << "Error in line :" << i;
-                    return 0;
-                }
-            } else if (line_array[0] == "shl") //this instructions oversees given instruction is shl
+                cout << "Error in line :" << i;
+                return 0;
+            }
+        } else if (line_array[0] == "nop") //this instructions oversees given instruction is nop
+        {
+            if (nop(i) == -1) //this if statemnts controls the value which funciton returns and finish or continue the process
             {
-                if (shl(i) == -1) //this if statemnts controls the value which funciton returns and finish or continue the process
-                {
-                    cout << "Error in line :" << i;
-                    return 0;
-                }
-            } else if (line_array[0] == "shr") //this instructions oversees given instruction is shr
+                cout << "Error in line :" << i;
+                return 0;
+            }
+        } else if (line_array[0] == "jz" || line_array[0] == "je") //this instructions oversees given instruction is jz or je
+        {
+            if (JZ_JE(i) == -1)//this if statemnts controls the value which funciton returns and finish or continue the process
             {
-                if (shr(i) == -1) //this if statemnts controls the value which funciton returns and finish or continue the process
-                {
-                    cout << "Error in line :" << i;
-                    return 0;
-                }
-            } else if (line_array[0] == "cmp") //this instructions oversees given instruction is cmp
+                cout << "Error in line :" << i;
+                return 0;
+            }
+        } else if (line_array[0] == "jne" || line_array[0] == "jnz") //this instructions oversees given instruction is jne or jnz
+        {
+            if (JNE_JNZ(i) == -1) //this if statemnts controls the value which funciton returns and finish or continue the process
             {
-                if (compare(i) == -1) //this if statemnts controls the value which funciton returns and finish or continue the process
-                {
-                    cout << "Error in line :" << i;
-                    return 0;
-                }
-            } else if (line_array[0] == "push") //this instructions oversees given instruction is push
+                cout << "Error in line :" << i;
+                return 0;
+            }
+        } else if (line_array[0] == "ja" || line_array[0] == "jnbe") //this instructions oversees given instruction is ja or jnbe
+        {
+            if (JA_JNBE(i) == -1) //this if statemnts controls the value which funciton returns and finish or continue the process
             {
-                if (push(i) == -1) //this if statemnts controls the value which funciton returns and finish or continue the process
-                {
-                    cout << "Error in line :" << i;
-                    return 0;
-                }
-            } else if (line_array[0] == "pop") //this instructions oversees given instruction is pop
+                cout << "Error in line :" << i;
+                return 0;
+            }
+        } else if (line_array[0] == "jb" || line_array[0] == "jc" || line_array[0] == "jnae") //this instructions oversees given instruction is jb,jc or jnae
+        {
+            if (JB_JC_JNAE(i) == -1)//this if statemnts controls the value which funciton returns and finish or continue the process
             {
-                if (pop(i) == -1) //this if statemnts controls the value which funciton returns and finish or continue the process
-                {
-                    cout << "Error in line :" << i;
-                    return 0;
-                }
-            } else if (line_array[0] == "nop") //this instructions oversees given instruction is nop
+                cout << "Error in line :" << i;
+                return 0;
+            }
+        } else if (line_array[0] == "jbe") //this instructions oversees given instruction is jbe
+        {
+            if (JBE(i) == -1) //this if statemnts controls the value which funciton returns and finish or continue the process
             {
-                if (nop(i) == -1) //this if statemnts controls the value which funciton returns and finish or continue the process
-                {
-                    cout << "Error in line :" << i;
-                    return 0;
-                }
-            } else if (line_array[0] == "jz" || line_array[0] == "je") //this instructions oversees given instruction is jz or je
+                cout << "Error in line :" << i;
+                return 0;
+            }
+        } else if (line_array[0] == "jnb" || line_array[0] == "jae") //this instructions oversees given instruction is jnb or jae
+        {
+            if (JNB_JAE(i) == -1) //this if statemnts controls the value which funciton returns and finish or continue the process
             {
-                if (JZ_JE(i) == -1)//this if statemnts controls the value which funciton returns and finish or continue the process
-                {
-                    cout << "Error in line :" << i;
-                    return 0;
-                }
-            } else if (line_array[0] == "jne" || line_array[0] == "jnz") //this instructions oversees given instruction is jne or jnz
+                cout << "Error in line :" << i;
+                return 0;
+            }
+        } else if (line_array[0] == "jnc") //this instructions oversees given instruction is jnc
+        {
+            if (JNC(i) == -1) //this if statemnts controls the value which funciton returns and finish or continue the process
             {
-                if (JNE_JNZ(i) == -1) //this if statemnts controls the value which funciton returns and finish or continue the process
-                {
-                    cout << "Error in line :" << i;
-                    return 0;
-                }
-            } else if (line_array[0] == "ja" || line_array[0] == "jnbe") //this instructions oversees given instruction is ja or jnbe
+                cout << "Error in line :" << i;
+                return 0;
+            }
+        } else if (line_array[0] == "jmp") //this instructions oversees given instruction is jmp
+        {
+            if (JMP(i) == -1) //this if statemnts controls the value which funciton returns and finish or continue the process
             {
-                if (JA_JNBE(i) == -1) //this if statemnts controls the value which funciton returns and finish or continue the process
-                {
-                    cout << "Error in line :" << i;
-                    return 0;
-                }
-            } else if (line_array[0] == "jb" || line_array[0] == "jc" || line_array[0] == "jnae") //this instructions oversees given instruction is jb,jc or jnae
-            {
-                if (JB_JC_JNAE(i) == -1)//this if statemnts controls the value which funciton returns and finish or continue the process
-                {
-                    cout << "Error in line :" << i;
-                    return 0;
-                }
-            } else if (line_array[0] == "jbe") //this instructions oversees given instruction is jbe
-            {
-                if (JBE(i) == -1) //this if statemnts controls the value which funciton returns and finish or continue the process
-                {
-                    cout << "Error in line :" << i;
-                    return 0;
-                }
-            } else if (line_array[0] == "jnb" || line_array[0] == "jae") //this instructions oversees given instruction is jnb or jae
-            {
-                if (JNB_JAE(i) == -1) //this if statemnts controls the value which funciton returns and finish or continue the process
-                {
-                    cout << "Error in line :" << i;
-                    return 0;
-                }
-            } else if (line_array[0] == "jnc") //this instructions oversees given instruction is jnc
-            {
-                if (JNC(i) == -1) //this if statemnts controls the value which funciton returns and finish or continue the process
-                {
-                    cout << "Error in line :" << i;
-                    return 0;
-                }
-            } else if (line_array[0] == "jmp") //this instructions oversees given instruction is jmp
-            {
-                if (JMP(i) == -1) //this if statemnts controls the value which funciton returns and finish or continue the process
-                {
-                    cout << "Error in line :" << i;
-                    return 0;
-                }
-            } else if (line_array[0] == "int" && line_array[1] == "21h") //this instructions oversees given instruction is int 21h
-            { int_21h(i, outFile,infile); }
-            else if (line_array[0] == "int" && line_array[1] == "20h")//this instructions oversees given instruction is inc
-            { return 0; }
-            else if (line_array[0] == "code" || (line_array[0].at(line_array[0].size() - 1) == ':'))//this instructions oversees given instruction is inc
-            {}
-            else {cout<<"Error in line :"<<i; return 0;}
-            //these commands reset all global variables
-            line_array.clear();
-            is_bit8= false;
-            is_bit16= false;
-            is_reg=false;
-            is_memory=false;
-            is_var_global=false;
-            continue;
+                cout << "Error in line :" << i;
+                return 0;
+            }
+        } else if (line_array[0] == "int" && line_array[1] == "21h") //this instructions oversees given instruction is int 21h
+        { int_21h(i, outFile,infile); }
+        else if (line_array[0] == "int" && line_array[1] == "20h")//this instructions oversees given instruction is inc
+             { return 0; }
+        else if (line_array[0] == "code" || (line_array[0].at(line_array[0].size() - 1) == ':'))//this instructions oversees given instruction is inc
+        {}
+        else {cout<<"Error in line :"<<i; return 0;}
+        //these commands reset all global variables
+        line_array.clear();
+        is_bit8= false;
+        is_bit16= false;
+        is_reg=false;
+        is_memory=false;
+        is_var_global=false;
+        continue;
         }
     }
 }
@@ -569,16 +569,16 @@ int mov(int i) {
             return -1;
         memory[location] = value;
     } else if (line_array[1] == "b" || line_array[1] == "w" || is_var) {
-        if ((line_array[1] == "b" )||(variable_type == "db" && line_array[1]==variable)) {
-            is_bit16=false; is_bit8=true;
-            int value = return_value_of_right_hand_side(line_array[1] == "b" ? 3 : 2);  //this line returns the value of the right hand side ,which is the right of comma in line
-            if (value == -1)
-                return -1;
-            if(value<256)
-                memory[keep_index] = value;
-            else return -1;
-            is_bit16 = false;
-        }
+            if ((line_array[1] == "b" )||(variable_type == "db" && line_array[1]==variable)) {
+                is_bit16=false; is_bit8=true;
+                int value = return_value_of_right_hand_side(line_array[1] == "b" ? 3 : 2);  //this line returns the value of the right hand side ,which is the right of comma in line
+                if (value == -1)
+                    return -1;
+                if(value<256)
+                    memory[keep_index] = value;
+                else return -1;
+                is_bit16 = false;
+            }
         else if ((line_array[1] == "w" )||(variable_type == "dw" && line_array[1]==variable)) {
             is_bit8 = false; is_bit16=true;
             int value = return_value_of_right_hand_side(line_array[1] == "w" ? 3 : 2);  //this line returns the value of the right hand side ,which is the right of comma in line
@@ -647,15 +647,15 @@ int add(int i) {
             change_flags_only_one_paramether(*ptr);
         }
     } else if ((line_array[1].at(0) == '[' && line_array[1].at(line_array[1].size() - 1) == ']') ||
-               (bit16_reg_b_breaked!=bit16_array_with_b_and_breaked.end() || bit16_reg_w_breaked!=bit16_array_with_w_and_breaked.end()))//this if statemts for memory direct and also indirect addresing
+    (bit16_reg_b_breaked!=bit16_array_with_b_and_breaked.end() || bit16_reg_w_breaked!=bit16_array_with_w_and_breaked.end()))//this if statemts for memory direct and also indirect addresing
     {
         is_bit16=true; int value=0; is_bit8=true;
         int location = calculate_index(1);
         bool temp=false;
-        if( (line_array[1].at(0) == '[' && line_array[1].at(line_array[1].size() - 1) == ']') || (bit16_reg_w_breaked!=bit16_array_with_w_and_breaked.end())) //is it 16 bit process
-            temp=true;
+       if( (line_array[1].at(0) == '[' && line_array[1].at(line_array[1].size() - 1) == ']') || (bit16_reg_w_breaked!=bit16_array_with_w_and_breaked.end())) //is it 16 bit process
+           temp=true;
         if(temp)
-            value= memory[location] + ((location + 1 )< (pow(2, 16)) ? (memory[location + 1] << 8) : 0);
+             value= memory[location] + ((location + 1 )< (pow(2, 16)) ? (memory[location + 1] << 8) : 0);
         else
             value= memory[location];
         int a=return_value_of_right_hand_side(2);
@@ -676,32 +676,32 @@ int add(int i) {
         }else memory[location]=deger;
     } else if (line_array[1] == "b" || line_array[1] == "w" || is_var) //is it var ?
     {is_var_global = true;is_bit8 = true;is_bit16 = true;
-        if ((line_array[1] == "b" )||(variable_type == "db" && line_array[1]==variable))//is it byte type?
-        {
-            is_bit16=false;
-            int value  = return_value_of_right_hand_side(line_array[1] == "b" ? 3 : 2);  //this line returns the value of the right hand side ,which is the right of comma in line
-            int result = value +  memory[keep_index] ;
-            if ((value == -1 ) || (value>256))
-                return -1;
-            if(change_flags_with_byte(8,result))
-                value%=(2<<7);
-            change_flags_only_one_paramether(result);
-            memory[keep_index] = result ;
-        }
-        else if ((line_array[1] == "w" )||(variable_type == "dw" && line_array[1]==variable)) //is it word type?
-        {
-            is_bit8 = false;
-            int value = return_value_of_right_hand_side(line_array[1] == "w" ? 3 : 2);  //this line returns the value of the right hand side ,which is the right of comma in line
-            int deger=memory[keep_index]+(memory[keep_index+1]<<8);
-            int result=value+deger;
-            if (value == -1 || (deger>(2<<15)))
-                return -1 ;
-            int head_of_8 = (result >> 8); // to extract the most significant 8 bit
-            int tail_8 = last_8bit(result);  //to obtain the lest significant 8 bit
-            memory[keep_index] = tail_8;
-            if (keep_index + 1 < (pow(2, 16)))
-                memory[keep_index + 1] = head_of_8;
-        }
+            if ((line_array[1] == "b" )||(variable_type == "db" && line_array[1]==variable))//is it byte type?
+            {
+                is_bit16=false;
+                int value  = return_value_of_right_hand_side(line_array[1] == "b" ? 3 : 2);  //this line returns the value of the right hand side ,which is the right of comma in line
+                int result = value +  memory[keep_index] ;
+                if ((value == -1 ) || (value>256))
+                        return -1;
+                if(change_flags_with_byte(8,result))
+                       value%=(2<<7);
+                change_flags_only_one_paramether(result);
+                memory[keep_index] = result ;
+            }
+            else if ((line_array[1] == "w" )||(variable_type == "dw" && line_array[1]==variable)) //is it word type?
+            {
+                is_bit8 = false;
+                int value = return_value_of_right_hand_side(line_array[1] == "w" ? 3 : 2);  //this line returns the value of the right hand side ,which is the right of comma in line
+                int deger=memory[keep_index]+(memory[keep_index+1]<<8);
+                int result=value+deger;
+                if (value == -1 || (deger>(2<<15)))
+                         return -1 ;
+                int head_of_8 = (result >> 8); // to extract the most significant 8 bit
+                int tail_8 = last_8bit(result);  //to obtain the lest significant 8 bit
+                memory[keep_index] = tail_8;
+                if (keep_index + 1 < (pow(2, 16)))
+                    memory[keep_index + 1] = head_of_8;
+            }
     }
     return 0;
 }
@@ -755,8 +755,8 @@ int sub(int i) {
             *ptr=temp;
         }
     } else if ((line_array[1].at(0) == '[' && line_array[1].at(line_array[1].size() - 1) == ']')||
-               (bit16_reg_b_breaked!=bit16_array_with_b_and_breaked.end() || bit16_reg_w_breaked!=bit16_array_with_w_and_breaked.end()) ||
-               ((line_array[1][0]=='w' || line_array[1][0]=='b') && line_array[1][line_array[1].size()-1]==']')) {
+            (bit16_reg_b_breaked!=bit16_array_with_b_and_breaked.end() || bit16_reg_w_breaked!=bit16_array_with_w_and_breaked.end()) ||
+            ((line_array[1][0]=='w' || line_array[1][0]=='b') && line_array[1][line_array[1].size()-1]==']')) {
         is_bit16=true; is_bit8=true;
         int location = calculate_index(1);
         int value = return_value_of_right_hand_side(2);
@@ -764,7 +764,7 @@ int sub(int i) {
             return -1;
         bool temp=false; int deger=0;
         if( (line_array[1].at(0) == '[' && line_array[1].at(line_array[1].size() - 1) == ']') ||
-            (bit16_reg_w_breaked!=bit16_array_with_w_and_breaked.end()) || (line_array[1][0]=='w')) //is it 16 bit process
+        (bit16_reg_w_breaked!=bit16_array_with_w_and_breaked.end()) || (line_array[1][0]=='w')) //is it 16 bit process
             temp=true;
         if(temp)
             deger= memory[location] + ((location + 1 )< (pow(2, 16)) ? (memory[location + 1] << 8) : 0);
@@ -901,13 +901,13 @@ int mul(int i) {
         if (line_array[1].at(0) == 'w') {
             long long int result =*pax * (memory[location] + (location + 1 < (pow(2, 16)) ? (memory[location + 1] << 8) : 0));
             if(result>(pow(2,32)))
-                result%=(long long)(pow(2,32));
+            result%=(long long)(pow(2,32));
             *pdx = (result >> 16);
             int  tail = last_16bit(result);
             *pax = tail;
             change_flag_acc_to(32);
         } else {
-            long long int result = *pal * memory[location];
+           long long int result = *pal * memory[location];
             if(result>(pow(2,16)))
                 result%=(long long)(pow(2,16));
             *pax = result;
@@ -941,7 +941,7 @@ int mul(int i) {
             }else sayi=line_array[2][1];
 
             if(line_array[1]=="w"){
-                long long  int result = *pax * sayi;
+               long long  int result = *pax * sayi;
                 if(result>(pow(2,32)))
                     result%=(long long)(pow(2,32));
                 *pdx = (result >> 16);
@@ -949,7 +949,7 @@ int mul(int i) {
                 *pax = tail;
                 change_flag_acc_to(32);
             }else if(line_array[1]=="b"){
-                long long  int result = *pal * sayi;
+               long long  int result = *pal * sayi;
                 if(result>(pow(2,16)))
                     result%=(long long)(pow(2,16));
                 *pax = result;
@@ -1152,21 +1152,21 @@ int no_t(int i) {
             *ptr = ~*ptr;
         }
     } else if (bit16_with_b_breaked != bit16_array_with_b_and_breaked.end() || bit16_with_w_breaked != bit16_array_with_w_and_breaked.end()) { //is it breaked register
-        string ss = line_array[1].substr(2, line_array[1].size() - 1);
-        if (bit16_with_w_breaked != bit16_array_with_w_and_breaked.end()) { //is it w breaked register such as w[bp]
-            unsigned short *ptr;
-            ptr = return_pointer(ss); //return register
-            int deger = memory[*ptr] + (*ptr + 1 < (pow(2, 16))) ? (memory[*ptr + 1] << 8) : 0;
-            deger = ~deger;
-            int  tail =last_8bit( deger); //the least significant 8 bit
-            memory[*ptr] = tail;
-            if (*ptr + 1 < (pow(2, 16)))
-                memory[*ptr + 1] = (deger >> 8); //the most 8 significant bit
-        } else { //is it b breaked register such as b[bx]
-            unsigned char *ptr;
-            ptr = get8Bit(ss);
-            memory[*ptr] = ~memory[*ptr];
-        }
+            string ss = line_array[1].substr(2, line_array[1].size() - 1);
+            if (bit16_with_w_breaked != bit16_array_with_w_and_breaked.end()) { //is it w breaked register such as w[bp]
+                unsigned short *ptr;
+                ptr = return_pointer(ss); //return register
+                int deger = memory[*ptr] + (*ptr + 1 < (pow(2, 16))) ? (memory[*ptr + 1] << 8) : 0;
+                deger = ~deger;
+                int  tail =last_8bit( deger); //the least significant 8 bit
+                memory[*ptr] = tail;
+                if (*ptr + 1 < (pow(2, 16)))
+                    memory[*ptr + 1] = (deger >> 8); //the most 8 significant bit
+            } else { //is it b breaked register such as b[bx]
+                unsigned char *ptr;
+                ptr = get8Bit(ss);
+                memory[*ptr] = ~memory[*ptr];
+            }
     } else if ((line_array[1][0] == 'w' || line_array[1][0]=='b') && line_array[1].at(line_array[1].size() - 1)==']') { //is it memory direct addresing
         int location = 0; string ss=line_array[1].substr(line_array[1].find_first_of('[')+1,line_array[1].length());
         ss=ss.substr(0,ss.find_last_of(']'));
@@ -1180,7 +1180,7 @@ int no_t(int i) {
         int tail = last_8bit(deger);
         memory[location] = tail;
         if (location + 1 < (pow(2, 16)))
-            memory[location + 1] = (deger >> 8);
+             memory[location + 1] = (deger >> 8);
     }else if(var_is){  //is it variable
         if(line_array[1]=="w"){   //is it word size
             int deger=memory[keep_index]+(memory[keep_index]<<8);  //take the value of memory in specific index
@@ -1297,9 +1297,9 @@ int rcr(int i) {
         }
     } else if ((line_array[1].at(0) == '[' || line_array[1][0]=='w' || line_array[1][0]=='b')&&( line_array[1].at(line_array[1].size() - 1) == ']')) {
         int location = calculate_index(1); int value=0; if(location==-1)return -1;
-        if((line_array[1].at(0) == '[' || line_array[1][0]=='w')&&(line_array[1].at(line_array[1].size() - 1) == ']')) //is it 16 bit process
-            value    = memory[location] + (location + 1 < (pow(2, 16))) ? (memory[location + 1] << 8) : 0;
-        else value=memory[location]; //else 8 bit process
+            if((line_array[1].at(0) == '[' || line_array[1][0]=='w')&&(line_array[1].at(line_array[1].size() - 1) == ']')) //is it 16 bit process
+                    value    = memory[location] + (location + 1 < (pow(2, 16))) ? (memory[location + 1] << 8) : 0;
+            else value=memory[location]; //else 8 bit process
         for (int i = 0; i < value; i++) {
             unsigned short tt = CF << sizeof(value) * 8 - 1;  //to give cf to the value, it must shift to left the size of its
             CF = value & 1;
@@ -1526,10 +1526,10 @@ int shl(int i) {
             memory[location + 1] = (deger >> 8);  //the most significant 8 bit push operation
     } else if ((line_array[1] == "w" || line_array[1] == "b") && is_var && line_array[3] != "w" && line_array[3] != "b")//shl w var,1  //is it var?
     {       int deger=0;
-        if(line_array[1] == "b")  //it it byte
-            deger = memory[keep_index];
-        else if((line_array[1] == "w"))  //is t it word
-            deger= memory[keep_index] + (keep_index + 1 < (pow(2, 16))) ? (memory[keep_index + 1] << 8) : 0;
+            if(line_array[1] == "b")  //it it byte
+                deger = memory[keep_index];
+            else if((line_array[1] == "w"))  //is t it word
+                deger= memory[keep_index] + (keep_index + 1 < (pow(2, 16))) ? (memory[keep_index + 1] << 8) : 0;
         CF = deger & 1;
         deger <<= value;
         int  tail = last_8bit(deger);  //the least 8 significant bit operation
@@ -1739,38 +1739,38 @@ int rcl(int i) {
             deger    = memory[location] + (location + 1 < (pow(2, 16))) ? (memory[location + 1] << 8) : 0;
         else deger=memory[location]; //else 8 bit process
 
-        for (int i = 0; i < value; i++) {
-            bool k = CF;
-            string s=convert_from_decimal_to_binary(deger);  //to take the most significant bit, this line convert decimal number into binary form
-            if(s.size()==8)
-                CF = convert_from_decimal_to_binary(deger).at(0) - '0';
-            else CF=0;
-            deger <<= 1;
-            deger |= k;
-        }
-        int tail = last_8bit(deger);  //the least significant bit
-        memory[keep_index] = tail;
-        if (keep_index + 1 < (pow(2, 16))&&(line_array[1].at(0) == '[' || line_array[1][0]=='w'))  //the most 8 significant bit
-            memory[keep_index + 1] = (deger >> 8);
+            for (int i = 0; i < value; i++) {
+                bool k = CF;
+                string s=convert_from_decimal_to_binary(deger);  //to take the most significant bit, this line convert decimal number into binary form
+                if(s.size()==8)
+                    CF = convert_from_decimal_to_binary(deger).at(0) - '0';
+                else CF=0;
+                deger <<= 1;
+                deger |= k;
+            }
+            int tail = last_8bit(deger);  //the least significant bit
+            memory[keep_index] = tail;
+            if (keep_index + 1 < (pow(2, 16))&&(line_array[1].at(0) == '[' || line_array[1][0]=='w'))  //the most 8 significant bit
+                memory[keep_index + 1] = (deger >> 8);
     } else if (var_is_ )//rcl w var,1  //is var ?
     {
-        int deger;
-        if(line_array[1]=="w" || line_array[1]==variable)  //16 bit operation
-            deger = memory[keep_index] + (keep_index + 1 < (pow(2, 16))) ? (memory[keep_index + 1] << 8) : 0;
-        else  if(line_array[1]=="b")//8 bit operation
-            deger = memory[keep_index];
-        for (int i = 0; i < value; i++) {  //rcl operation until process reach to that value
-            bool k = CF;
-            string s=convert_from_decimal_to_binary(deger);   //to take the most significant bit, this line convert decimal number into binary form
-            if(s.size()==8)
-                CF = convert_from_decimal_to_binary(deger).at(0) - '0';
-            else CF=0;
-            deger <<= 1;
-            deger |= k;
-        }
-        int tail = last_8bit(deger);
-        if (keep_index + 1 < (pow(2, 16)) && line_array[1]=="w") //16 bit push operation
-            memory[keep_index + 1] = (deger >> 8);
+            int deger;
+            if(line_array[1]=="w" || line_array[1]==variable)  //16 bit operation
+                deger = memory[keep_index] + (keep_index + 1 < (pow(2, 16))) ? (memory[keep_index + 1] << 8) : 0;
+            else  if(line_array[1]=="b")//8 bit operation
+                deger = memory[keep_index];
+            for (int i = 0; i < value; i++) {  //rcl operation until process reach to that value
+                bool k = CF;
+                string s=convert_from_decimal_to_binary(deger);   //to take the most significant bit, this line convert decimal number into binary form
+                if(s.size()==8)
+                    CF = convert_from_decimal_to_binary(deger).at(0) - '0';
+                else CF=0;
+                deger <<= 1;
+                deger |= k;
+            }
+            int tail = last_8bit(deger);
+            if (keep_index + 1 < (pow(2, 16)) && line_array[1]=="w") //16 bit push operation
+                memory[keep_index + 1] = (deger >> 8);
 
 
     } else
@@ -1812,16 +1812,17 @@ int pop(int i) { // returns value in the top of the stack
 }
 char int_21h(int i, ofstream &outFile,ifstream& infile ) {
     if (*pah == 1) { //reads given input from file
-        char ch=cin.get();
-        if(ch=='\n')
+        string s;
+        getline(cin,s);
+        if(s[0]=='\n')
         {
             *pal=13;
-            *pdl = ch;
+            *pdl = s[0];
         }
         else
         {
-            *pal = (unsigned char) ch;
-            *pdl = ch;
+            *pal = (unsigned char) s[0];
+            *pdl = s[0];
         }
 
     } else if (*pah == 2) {  //display from the value of dl register  to console
@@ -1850,7 +1851,7 @@ int compare(int i) {
 
     int asci=0;
     if(line_array[1][0]=='\'')
-        asci=line_array[1][1];
+            asci=line_array[1][1];
     else asci=line_array[1][0];
     string var_name = "";
     int variable_index = 0;
@@ -1961,7 +1962,7 @@ int compare(int i) {
         else return -1;
         int value_right_hand_side = return_value_of_right_hand_side(3);
         if(value_right_hand_side==-1)
-            return -1;
+               return -1;
         int asci=line_array[2][1];
         change_flags(asci,value_right_hand_side);
     } else if (asci >= 48 && asci <= 57)//sayi
@@ -2147,7 +2148,7 @@ int calculate_index(int arr_num) { // calculate memory location
     return 0;
 }
 int convert_from_hexadecimal_to_decimal(string hex_val) {  //convert from hex decimal value to decimal value
-    if(hex_val[hex_val.size()-1]=='h' || hex_val[hex_val.size()-1]=='H')
+   if(hex_val[hex_val.size()-1]=='h' || hex_val[hex_val.size()-1]=='H')
         hex_val=hex_val.substr(0,hex_val.size()-1);
     int len = hex_val.size();
     int base = 1;
@@ -2250,7 +2251,7 @@ int return_value_of_right_hand_side(int index) { //this funciton returns the val
         else
             return memory[*ptr];
     } else if ((line_array[index].at(0) == '['  || ((line_array[index].at(0) == 'w' || line_array[index].at(0) == 'b')))
-               &&(line_array[index].at(line_array[index].size() - 1) == ']'))     //reg-memory|w[memory]|b[memory]
+    &&(line_array[index].at(line_array[index].size() - 1) == ']'))     //reg-memory|w[memory]|b[memory]
     {
         if (line_array[index].at(0) == 'b') {  //is it byte
             int location=0;  string gg=line_array[index].substr(line_array[index].find_first_of('[')+1,line_array[index].length());
@@ -2258,19 +2259,19 @@ int return_value_of_right_hand_side(int index) { //this funciton returns the val
             if (is_it_hex(gg))
                 location=convert_from_hexadecimal_to_decimal(gg);
             else if((gg[gg.size()-1] == 'd' || gg[gg.size()-1] == 'D'))
-                location=stoi(gg);
-            if(location<0 || location>(2<<15))
-                return -1;
+                 location=stoi(gg);
+                if(location<0 || location>(2<<15))
+                    return -1;
             return memory[location];
         } else if (line_array[index].at(0) == 'w' || line_array[index].at(0) == '['){  //is it word size ?
             int location;
             int value; string gg=line_array[index].substr(line_array[index].find_first_of('[')+1,line_array[index].length());
             gg=gg.substr(0,gg.find_last_of(']'));
             if (is_it_hex(gg)){
-                location=convert_from_hexadecimal_to_decimal(gg);
+                 location=convert_from_hexadecimal_to_decimal(gg);
             }
             else if (gg[gg.size()-1] == 'd' || gg[gg.size()-1] == 'D'){
-                location=stoi(gg.substr(0,gg.size()-1));
+                 location=stoi(gg.substr(0,gg.size()-1));
             }else location=stoi(gg);
             if(location<0 || location>(2<<15))
                 return -1;
@@ -2351,7 +2352,7 @@ bool change_flags_with_byte(int byte,int sayi) { //change flags
     return false;
 }
 int return_value() {  //retur value for rcl-rcr-shl-shr
-    int value;
+     int value;
     if (line_array[1] == "w" || line_array[1] == "b") {
         if (line_array[3] == "cl")
             value = *get8Bit(line_array[3]);
@@ -2487,14 +2488,14 @@ int xor_or_and(string s) {
         else
             sayi = stoi(s);
         if((line_array[1].at(0) == '[' || line_array[1][0]=='w')) //is word operation ?
-            is_bit16=true;
+                 is_bit16=true;
         else is_bit8=true;                                                  //is byte operation ?
         int value = return_value_of_right_hand_side(2);
         if(value==-1)
             return -1;
         int k=0;
         if((line_array[1].at(0) == '[' || line_array[1][0]=='w'))
-            k = memory[sayi] + ((sayi + 1 < (pow(2, 16))) ? (memory[sayi + 1] << 8) : 0); //word value
+                k = memory[sayi] + ((sayi + 1 < (pow(2, 16))) ? (memory[sayi + 1] << 8) : 0); //word value
         else k = memory[sayi];      //byte value
         if (s == "or")
             k |= value;
