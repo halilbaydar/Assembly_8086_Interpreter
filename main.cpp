@@ -5,6 +5,7 @@
 #include <cmath>
 #include "fstream"
 #include <string>
+#include "stdlib.h"
 using namespace std;  //in between 9-23 lines there are helper functions which lots of essential aseembly funcitons can use at the same time.
 unsigned short *return_pointer(string s);      //this function returns 16 bit pointer of assembly 8086 register
 unsigned char *get8Bit(string s);       //this function returns 8 bit pointer of assembly 8086 register
@@ -95,6 +96,7 @@ vector<pair<string, string>> variable_array; //this array keeps the name and typ
 vector<int> index_keeper; //this array contains the addres of variables
 unsigned char memory[2 << 15];  // this array represets memory in allowed size given by instructor
 vector<string>::iterator p;
+int uuuuu=0;
 void trim(string& s){
     string temp="";
     for (int i = 0; i < s.size(); ++i) {
@@ -198,7 +200,7 @@ int main(int argc, char *argv[])//main function get the instructions and control
         if (line_array.size() > 1) {
             if (line_array[1] == "db" || line_array[1] == "dw") //this if statements controls whether the line include a variable or not
             {
-                if(line_array[0]=="label:"){cout<<"Unsupported Variable Name in line : " <<i; return 0;}
+                if(line_array[0]=="label:"){cout<<"Unsupported Variable Name in line : " <<i; return 1;}
                 int temp_ascii;
                 if(line_array[2][0]=='\'' || line_array[2][0]=='\"')
                     temp_ascii= line_array[2][1];
@@ -207,12 +209,12 @@ int main(int argc, char *argv[])//main function get the instructions and control
                     //this statements decides the input any number or not
                 {
                     int sayi = 0;
-                    if (line_array[2].at(line_array[2].size() - 1) == 'h' || line_array[2].at(0) == 0) //this fi statements check if this hexadecimal number or not
+                    if (is_it_hex(line_array[2])) //this fi statements check if this hexadecimal number or not
                     {
 
                         sayi = convert_from_hexadecimal_to_decimal(line_array[2]);
                     } else {
-                        if (line_array[2].at(line_array[2].size() - 1) == 'd') //this fi statements check if this decimal number or not
+                        if (line_array[2].at(line_array[2].size() - 1) == 'd' || line_array[2][line_array[2].size()-1]=='D') //this fi statements check if this decimal number or not
                         {
                             line_array[2] = line_array[2].substr(0, line_array[2].size() - 1);
                             sayi = stoi(line_array[2]);
@@ -252,218 +254,104 @@ int main(int argc, char *argv[])//main function get the instructions and control
             }
         }
         line_array.clear();
-        i += 6;
-        continue;
+        if((!line_array.empty())&&(line_array[0]=="code" || line_array[0][line_array[0].size()-1]==':'))
+            continue;
+        else i += 6;
     }
     i = 0;
     for (p = code_array.begin(); p != code_array.end(); p++) //this loop travels all given code ,which sometimes forward or back
     {
         string line = *p;
         tokenizer(line);
-        i++;
+        i++; uuuuu++;
         if(line_array.size()>0){
             //to determine which function is processed
         if (line_array.size() > 2 && line_array[0] == "mov") //this instructions oversees given instruction is mov
         {
-            if (mov(i) == -1) //this if statemnts controls the value which funciton returns and finish
-            {
-                cout << "Error in line :" << i;
-                return 0;
-            }
-        } else if (line_array[0] == "inc") //this instructions oversees given instruction is inc
+            mov(i);
+        } else if (line_array[0] == "inc")
         {
-            int a=inc_dec(1);//this if statemnts controls the value which funciton returns and finish
-            if (a == -1) {
-                cout << "Error in line :" << i;
-                return 0;
-            }
-            else if(a==1){
-                cout << "Overflow in line :" << i;
-                return 0;
-            }
+           inc_dec(1);
         } else if (line_array[0] == "dec") //this instructions oversees given instruction is dec
         {
-            int a=inc_dec(-1);//this if statemnts controls the value which funciton returns and finish
-            if (a == -1) {
-                cout << "Error in line :" << i;
-                return 0;
-            }
-            else if(a==1){
-                cout << "Overflow in line :" << i;
-                return 0;
-            }
+            inc_dec(-1);
         } else if (line_array.size() > 2 && line_array[0] == "add") //this instructions oversees given instruction is add
         {
-            int a=add(i) == -1;//this if statemnts controls the value which funciton returns and finish
-            if (a==-1) {
-                cout << "Error in line :" << i;
-                return 0;
-            }
+            add(i) == -1;
         } else if (line_array.size() > 2 && line_array[0] == "sub") //this instructions oversees given instruction is sub
         {
-            int a=sub(i);//this if statemnts controls the value which funciton returns and finish
-            if (a== -1)
-            {
-                cout << "Error in line :" << i;
-                return 0;
-            }
+            int a=sub(i);
         } else if (line_array.size() > 0 && line_array[0] == "div") //this instructions oversees given instruction is div
         {
-            int a = div(i);//this if statemnts controls the value which funciton returns and finish
-            if (a == -1) {
-                cout << "Error in line :" << i;
-                return 0;
-            } else if (a == 1) {
+            int a = div(i);
+            if (a == 1) {
                 cout << "Overflow in line : " << i;
                 return 0;
             }
         } else if (line_array.size() > 0 && line_array[0] == "mul") //this instructions oversees given instruction is mul
         {
-            int a = mul(i);//this if statemnts controls the value which funciton returns and finish or continue the process
-            if (a == -1) {
-                cout << "Error in line :" << i;
-                return 0;
-            }
+            mul(i);//this if statemnts controls the value which funciton returns and finish or continue the process
         } else if (line_array[0] == "xor") //this instructions oversees given instruction is xor
         {
-            if (x_or(i) == -1) //this if statemnts controls the value which funciton returns and finish or continue the process
-            {
-                cout << "Error in line :" << i;
-                return 0;
-            }
+            x_or(i); //this if statemnts controls the value which funciton returns and finish or continue the process
+
         } else if (line_array[0] == "or") //this instructions oversees given instruction is or
         {
-            if (o_r(i) == -1) //this if statemnts controls the value which funciton returns and finish or continue the process
-            {
-                cout << "Error in line :" << i;
-                return 0;
-            }
+            o_r(i) ;
         } else if (line_array[0] == "and") //this instructions oversees given instruction is and
         {
-            if (an_d(i) == -1) //this if statemnts controls the value which funciton returns and finish or continue the process
-            {
-                cout << "Error in line :" << i;
-                return 0;
-            }
+            an_d(i);
         } else if (line_array[0] == "not") //this instructions oversees given instruction is not
         {
-            if (no_t(i) == -1)//this if statemnts controls the value which funciton returns and finish or continue the process
-            {
-                cout << "Error in line :" << i;
-                return 0;
-            }
+            no_t(i);
         } else if (line_array[0] == "rcl") //this instructions oversees given instruction is rcl
         {
-            if (rcl(i) == -1) //this if statemnts controls the value which funciton returns and finish or continue the process
-            {
-                cout << "Error in line :" << i;
-                return 0;
-            }
+            rcl(i);
         } else if (line_array[0] == "rcr") //this instructions oversees given instruction is rcr
         {
-            if (rcr(i) == -1) //this if statemnts controls the value which funciton returns and finish or continue the process
-            {
-                cout << "Error in line :" << i;
-                return 0;
-            }
+            rcr(i);
         } else if (line_array[0] == "shl") //this instructions oversees given instruction is shl
         {
-            if (shl(i) == -1) //this if statemnts controls the value which funciton returns and finish or continue the process
-            {
-                cout << "Error in line :" << i;
-                return 0;
-            }
+            shl(i) ;
         } else if (line_array[0] == "shr") //this instructions oversees given instruction is shr
         {
-            if (shr(i) == -1) //this if statemnts controls the value which funciton returns and finish or continue the process
-            {
-                cout << "Error in line :" << i;
-                return 0;
-            }
+            shr(i);
         } else if (line_array[0] == "cmp") //this instructions oversees given instruction is cmp
         {
-            if (compare(i) == -1) //this if statemnts controls the value which funciton returns and finish or continue the process
-            {
-                cout << "Error in line :" << i;
-                return 0;
-            }
+            compare(i);
         } else if (line_array[0] == "push") //this instructions oversees given instruction is push
         {
-            if (push(i) == -1) //this if statemnts controls the value which funciton returns and finish or continue the process
-            {
-                cout << "Error in line :" << i;
-                return 0;
-            }
+            push(i);
         } else if (line_array[0] == "pop") //this instructions oversees given instruction is pop
         {
-            if (pop(i) == -1) //this if statemnts controls the value which funciton returns and finish or continue the process
-            {
-                cout << "Error in line :" << i;
-                return 0;
-            }
+            pop(i) ;
         } else if (line_array[0] == "nop") //this instructions oversees given instruction is nop
         {
-            if (nop(i) == -1) //this if statemnts controls the value which funciton returns and finish or continue the process
-            {
-                cout << "Error in line :" << i;
-                return 0;
-            }
+            nop(i);
         } else if (line_array[0] == "jz" || line_array[0] == "je") //this instructions oversees given instruction is jz or je
         {
-            if (JZ_JE(i) == -1)//this if statemnts controls the value which funciton returns and finish or continue the process
-            {
-                cout << "Error in line :" << i;
-                return 0;
-            }
+            JZ_JE(i);
         } else if (line_array[0] == "jne" || line_array[0] == "jnz") //this instructions oversees given instruction is jne or jnz
         {
-            if (JNE_JNZ(i) == -1) //this if statemnts controls the value which funciton returns and finish or continue the process
-            {
-                cout << "Error in line :" << i;
-                return 0;
-            }
+            JNE_JNZ(i);
         } else if (line_array[0] == "ja" || line_array[0] == "jnbe") //this instructions oversees given instruction is ja or jnbe
         {
-            if (JA_JNBE(i) == -1) //this if statemnts controls the value which funciton returns and finish or continue the process
-            {
-                cout << "Error in line :" << i;
-                return 0;
-            }
+            JA_JNBE(i);
         } else if (line_array[0] == "jb" || line_array[0] == "jc" || line_array[0] == "jnae") //this instructions oversees given instruction is jb,jc or jnae
         {
-            if (JB_JC_JNAE(i) == -1)//this if statemnts controls the value which funciton returns and finish or continue the process
-            {
-                cout << "Error in line :" << i;
-                return 0;
-            }
+            JB_JC_JNAE(i);
         } else if (line_array[0] == "jbe") //this instructions oversees given instruction is jbe
         {
-            if (JBE(i) == -1) //this if statemnts controls the value which funciton returns and finish or continue the process
-            {
-                cout << "Error in line :" << i;
-                return 0;
-            }
+            JBE(i);
         } else if (line_array[0] == "jnb" || line_array[0] == "jae") //this instructions oversees given instruction is jnb or jae
         {
-            if (JNB_JAE(i) == -1) //this if statemnts controls the value which funciton returns and finish or continue the process
-            {
-                cout << "Error in line :" << i;
-                return 0;
-            }
+            JNB_JAE(i);
         } else if (line_array[0] == "jnc") //this instructions oversees given instruction is jnc
         {
-            if (JNC(i) == -1) //this if statemnts controls the value which funciton returns and finish or continue the process
-            {
-                cout << "Error in line :" << i;
-                return 0;
-            }
+            JNC(i) ;
         } else if (line_array[0] == "jmp") //this instructions oversees given instruction is jmp
         {
-            if (JMP(i) == -1) //this if statemnts controls the value which funciton returns and finish or continue the process
-            {
-                cout << "Error in line :" << i;
-                return 0;
-            }
+            JMP(i);
         } else if (line_array[0] == "int" && line_array[1] == "21h") //this instructions oversees given instruction is int 21h
         { int_21h(i, outFile,infile); }
         else if (line_array[0] == "int" && line_array[1] == "20h")//this instructions oversees given instruction is inc
@@ -516,14 +404,11 @@ int mov(int i) {
             ptr = return_pointer(line_array[1]); //returns 16 bit register
             is_bit16=true;
             int value = return_value_of_right_hand_side(2); //this line returns the value of the right hand side ,which is the right of comma in line
-            if(value==-1)return -1;
             *ptr=value;
         } else {
             ptr2 = get8Bit(line_array[1]); //return 8 bit resgister
             is_bit8=true;
             int value = return_value_of_right_hand_side(2); //this line returns the value of the right hand side ,which is the right of comma in line
-            if(value==-1)
-                return -1;
             *ptr2=value;
         }
     } else if (bit16_reg_b_breaked != bit16_array_with_b_and_breaked.end() || bit16_reg_w_breaked != bit16_array_with_w_and_breaked.end()) //if such b[bx] or w[si] registers are in the process
@@ -536,8 +421,6 @@ int mov(int i) {
         string s = ""; s.push_back(line_array[1].at(2)); s.push_back(line_array[1].at(3));
         ptr = return_pointer(s);   //returns 16 bit register
         int value = return_value_of_right_hand_side(2); //this line returns the value of the right hand side ,which is the right of comma in line
-        if (value == -1)
-            return -1;
         if (bit16_reg_b_breaked != bit16_array_with_b_and_breaked.end())
             memory[*ptr] = value;
         else {
@@ -551,39 +434,33 @@ int mov(int i) {
         is_bit16=true; is_memory=true;
         int location = calculate_index(1);
         int value = return_value_of_right_hand_side(2); //this line returns the value of the right hand side ,which is the right of comma in line
-        if(location==-1 || value == -1)
-            return -1;
         if (value < (pow(2, 16))) {
             int head_of_8 = value >> 8;  //to put the most signifiant 8 bit of the value into higher index in the memory, line scrolles 8 bit to the right
             int  tail_8 = last_8bit(value);   //this returns the least significant 8 bit of the value
             memory[location] = tail_8;
             if (location + 1 < (pow(2, 16)))
                 memory[location + 1] = head_of_8;
-        } else return -1;
+        } else {cout<<"Error in line : "<<uuuuu; exit(1);}
     } else if ((line_array[1].at(line_array[1].size() - 1) == ']') && line_array[1].at(0) == 'b') //if such b[01h] memory addresing is in the process
     {
         is_bit8=true; is_memory==true;
         int location = calculate_index(1);  //calculate memory index
         int value = return_value_of_right_hand_side(2); //this line returns the value of the right hand side ,which is the right of comma in line
-        if (value == -1 || value > pow(2, 8))
-            return -1;
+        if ( value > pow(2, 8))
+        {cout<<"Error in line : "<<uuuuu; exit(1);}
         memory[location] = value;
     } else if (line_array[1] == "b" || line_array[1] == "w" || is_var) {
             if ((line_array[1] == "b" )||(variable_type == "db" && line_array[1]==variable)) {
                 is_bit16=false; is_bit8=true;
                 int value = return_value_of_right_hand_side(line_array[1] == "b" ? 3 : 2);  //this line returns the value of the right hand side ,which is the right of comma in line
-                if (value == -1)
-                    return -1;
                 if(value<256)
                     memory[keep_index] = value;
-                else return -1;
+                else {cout<<"Error in line : "<<uuuuu; exit(1);}
                 is_bit16 = false;
             }
         else if ((line_array[1] == "w" )||(variable_type == "dw" && line_array[1]==variable)) {
             is_bit8 = false; is_bit16=true;
             int value = return_value_of_right_hand_side(line_array[1] == "w" ? 3 : 2);  //this line returns the value of the right hand side ,which is the right of comma in line
-            if (value == -1)
-                return -1;
             int head_of_8 = (value >> 8); // to extract the most significant 8 bit
             int tail_8 = last_8bit(value);  //to obtain the lest significant 8 bit
             memory[keep_index] = tail_8;
@@ -591,7 +468,7 @@ int mov(int i) {
                 memory[keep_index + 1] = head_of_8;
         }
     } else
-        return -1;
+    {cout<<"Error in line : "<<uuuuu; exit(1);}
     return 0;
 }
 int add(int i) {
@@ -626,8 +503,6 @@ int add(int i) {
             unsigned short *ptr;
             ptr = return_pointer(line_array[1]); //returns 16 bit register
             int a=return_value_of_right_hand_side(2); //this line returns the value of the right hand side ,which is the right of comma in line
-            if(a==-1)
-                return -1;
             int value =*ptr + a;
             if(change_flags_with_byte(16,value))
                 *ptr=value%(2<<15);
@@ -638,8 +513,6 @@ int add(int i) {
             unsigned char *ptr;
             ptr = get8Bit(line_array[1]);
             int tt=return_value_of_right_hand_side(2); //this line returns the value of the right hand side ,which is the right of comma in line
-            if(tt==-1)
-                return -1;
             int value =*ptr + tt;
             if(change_flags_with_byte(8,value)) //if the result of process is biggerden storage, it is taken mod of storage size
                 *ptr=value%(2<<15);
@@ -659,8 +532,6 @@ int add(int i) {
         else
             value= memory[location];
         int a=return_value_of_right_hand_side(2);
-        if(a==-1)
-            return -1;
         int deger=value+a;
         if(temp && change_flags_with_byte(16,deger)) //change flags
             deger=deger%(2<<15);
@@ -681,8 +552,8 @@ int add(int i) {
                 is_bit16=false;
                 int value  = return_value_of_right_hand_side(line_array[1] == "b" ? 3 : 2);  //this line returns the value of the right hand side ,which is the right of comma in line
                 int result = value +  memory[keep_index] ;
-                if ((value == -1 ) || (value>256))
-                        return -1;
+                if ( (value>256))
+                {cout<<"Error in line : "<<uuuuu; exit(1);}
                 if(change_flags_with_byte(8,result))
                        value%=(2<<7);
                 change_flags_only_one_paramether(result);
@@ -694,8 +565,6 @@ int add(int i) {
                 int value = return_value_of_right_hand_side(line_array[1] == "w" ? 3 : 2);  //this line returns the value of the right hand side ,which is the right of comma in line
                 int deger=memory[keep_index]+(memory[keep_index+1]<<8);
                 int result=value+deger;
-                if (value == -1 || (deger>(2<<15)))
-                         return -1 ;
                 int head_of_8 = (result >> 8); // to extract the most significant 8 bit
                 int tail_8 = last_8bit(result);  //to obtain the lest significant 8 bit
                 memory[keep_index] = tail_8;
@@ -738,8 +607,6 @@ int sub(int i) {
             unsigned short *ptr;
             ptr = return_pointer(line_array[1]); //returns 16 bit register
             int a=return_value_of_right_hand_side(2); //this line returns the value of the right hand side ,which is the right of comma in line
-            if(a==-1)
-                return -1;
             int temp=*ptr - a;
             change_flags_only_one_paramether(temp);  //changes the flags according to the result of operation
             *ptr=temp;
@@ -748,8 +615,6 @@ int sub(int i) {
             unsigned char *ptr;
             ptr = get8Bit(line_array[1]);
             int a=return_value_of_right_hand_side(2);//changes the flags according to the result of operation
-            if(a==-1)
-                return -1;
             int temp=*ptr - a;
             change_flags_only_one_paramether(temp); //changes the flags according to result
             *ptr=temp;
@@ -760,8 +625,6 @@ int sub(int i) {
         is_bit16=true; is_bit8=true;
         int location = calculate_index(1);
         int value = return_value_of_right_hand_side(2);
-        if(value==-1)
-            return -1;
         bool temp=false; int deger=0;
         if( (line_array[1].at(0) == '[' && line_array[1].at(line_array[1].size() - 1) == ']') ||
         (bit16_reg_w_breaked!=bit16_array_with_w_and_breaked.end()) || (line_array[1][0]=='w')) //is it 16 bit process
@@ -783,16 +646,12 @@ int sub(int i) {
             is_bit8=true;
             int value = memory[keep_index];
             int deger_of_right = return_value_of_right_hand_side(line_array[1] == "b" ? 3 : 2);
-            if( deger_of_right==-1 || value<0 )
-                return -1;
             memory[keep_index] = value - deger_of_right;
             change_flags_only_one_paramether(memory[keep_index]);
         } else if ((line_array[1] == "w" )||(variable_type == "dw" && line_array[1]==variable)) {
             is_bit16=true;
             int deger = memory[keep_index] + (((keep_index + 1) < (pow(2, 16))) ? (memory[keep_index + 1] << 8) : 0);
             int value = return_value_of_right_hand_side(variable == line_array[1] ? 2 : 3); //returns value of right side
-            if(value==-1)
-                return -1;
             int result=deger-value;
             change_flags_only_one_paramether(result); //change flags
             int head_of_8 = (result >> 8);  //the most significant 8 bit
@@ -801,7 +660,7 @@ int sub(int i) {
             if (keep_index + 1 < (pow(2, 16)))
                 memory[keep_index + 1] = head_of_8;
         }
-    }else return -1;
+    }else {cout<<"Error in line : "<<uuuuu; exit(1);}
     return 0;
 }
 void change_flag_acc_to(int byte){
@@ -927,7 +786,7 @@ int mul(int i) {
                 long long int result = *pal * (memory[keep_index]);
                 *pax = result;
                 change_flag_acc_to(16);     //change flags
-            }else return -1;
+            }else {cout<<"Error in line : "<<uuuuu; exit(1);}
         }
         else{
             int sayi = 0;
@@ -954,10 +813,10 @@ int mul(int i) {
                     result%=(long long)(pow(2,16));
                 *pax = result;
                 change_flag_acc_to(16);
-            }else return -1;
+            }else {cout<<"Error in line : "<<uuuuu; exit(1);}
         }
     } else
-        return -1;
+    {cout<<"Error in line : "<<uuuuu; exit(1);}
     return 0;
 }
 int control_overflow(int a, int b, int byte){//this function controls overflow anly for div instruction
@@ -991,7 +850,7 @@ int div(int i) {
         unsigned short *ptr;
         ptr = return_pointer(line_array[1]);
         if(ptr== nullptr || *ptr==0)
-            return -1;
+        {cout<<"Error in line : "<<uuuuu; exit(1);}
         int value = (*pdx << 16) + *pax;
         if (control_overflow(value, *ptr, 16) == 1) //check that there is overflow or not
             return 1;
@@ -1002,7 +861,7 @@ int div(int i) {
         unsigned char *ptr;
         ptr = get8Bit(line_array[1]);
         if(ptr== nullptr || *ptr==0)
-            return -1;
+        {cout<<"Error in line : "<<uuuuu; exit(1);}
         if (control_overflow(*pax, *ptr, 8) == 1) //check that there is overflow or not
             return 1;
         int kalan = *pax % *ptr;
@@ -1012,8 +871,6 @@ int div(int i) {
         unsigned short *ptr;
         string s = "";s.push_back(line_array[1].at(2));s.push_back(line_array[1].at(3));
         ptr =  return_pointer(s); //return 16 bit register
-        if(ptr== nullptr)
-            return -1;
         if (control_overflow(*pax, memory[*ptr], 8) == 1)
             return 1;
         int kalan = *pax % memory[*ptr];
@@ -1047,7 +904,7 @@ int div(int i) {
             if (control_overflow(value,  sayi, 16) == 1)
                 return 1;
             if(sayi==0 || (value==0 && sayi==0))
-                return -1;
+            {cout<<"Error in line : "<<uuuuu; exit(1);}
             int kalan = value % sayi;
             int bolum= value / sayi;
             *pdx=kalan;*pax=bolum;
@@ -1055,7 +912,7 @@ int div(int i) {
             if (control_overflow(*pax, memory[location], 8) == 1)
                 return 1;
             if(memory[location]==0 || (*pax==0 && memory[location]==0))
-                return -1;
+            {cout<<"Error in line : "<<uuuuu; exit(1);}
             int kalan = *pax % memory[location];
             int bolum = *pax / memory[location];
             *pah=kalan; *pal=bolum;
@@ -1072,13 +929,13 @@ int div(int i) {
                 value=*pax;
                 deger = memory[keep_index];
             }
-            else return -1;
+            else {cout<<"Error in line : "<<uuuuu; exit(1);}
             if (line_array[1] == "w" && control_overflow(value, deger, 16) == 1)
                 return 1;
             else if(line_array[1] == "b" && control_overflow(value, deger, 8) == 1)
                 return 1;
             if(deger==0 || ( value==0 && deger==0))
-                return -1;
+            {cout<<"Error in line : "<<uuuuu; exit(1);}
             int kalan = value % deger;
             int bolum = value / deger;
             if(line_array[1]=="w")
@@ -1098,7 +955,7 @@ int div(int i) {
                 if (control_overflow(value, sayi, 16) == 1)
                     return 1;
                 if(sayi==0 || (value==0 && sayi==0)) //is 0/0 division or any number/division
-                    return -1;
+                {cout<<"Error in line : "<<uuuuu; exit(1);}
                 int kalan = value % sayi;
                 int bolum = value / sayi;
                 *pdx=kalan;*pax=bolum;
@@ -1106,13 +963,13 @@ int div(int i) {
                 if (control_overflow(*pax, sayi, 8) == 1)
                     return 1;
                 if((sayi==0) || (*pax==0 && sayi==0)) //is 0/0 division or any number/division
-                    return -1;
+                {cout<<"Error in line : "<<uuuuu; exit(1);}
                 int kalan = *pax % sayi;
                 int bolum = *pax / sayi;
                 *pah=kalan; *pal=bolum;
             }
         }
-    }else return -1;
+    }else {cout<<"Error in line : "<<uuuuu; exit(1);}
     return 0;
 }
 int no_t(int i) {
@@ -1193,8 +1050,8 @@ int no_t(int i) {
             int deger=memory[keep_index];
             deger=~deger;
             memory[keep_index]=deger;
-        }else return -1;
-    }else return -1;
+        }else {cout<<"Error in line : "<<uuuuu; exit(1);}
+    }else {cout<<"Error in line : "<<uuuuu; exit(1);}
     return 0;
 }
 int x_or(int i) {
@@ -1240,8 +1097,6 @@ int rcr(int i) {
                                 line_array[1]);
 
     int value = return_value();
-    if(value==-1)
-        return -1;
     if (x != bit16_array.end() || x1 != bit8_array.end()) {//is it 16 or 8 bit register
         if (x != bit16_array.end()) {
             unsigned short *ptr;
@@ -1296,7 +1151,7 @@ int rcr(int i) {
 
         }
     } else if ((line_array[1].at(0) == '[' || line_array[1][0]=='w' || line_array[1][0]=='b')&&( line_array[1].at(line_array[1].size() - 1) == ']')) {
-        int location = calculate_index(1); int value=0; if(location==-1)return -1;
+        int location = calculate_index(1); int value=0;
             if((line_array[1].at(0) == '[' || line_array[1][0]=='w')&&(line_array[1].at(line_array[1].size() - 1) == ']')) //is it 16 bit process
                     value    = memory[location] + (location + 1 < (pow(2, 16))) ? (memory[location + 1] << 8) : 0;
             else value=memory[location]; //else 8 bit process
@@ -1338,7 +1193,7 @@ int rcr(int i) {
                 memory[keep_index + 1] = (value >> 8);
         }
 
-    }else return -1;
+    }else {cout<<"Error in line : "<<uuuuu; exit(1);}
     return 0;
 }
 int shr(int i) {
@@ -1371,8 +1226,6 @@ int shr(int i) {
                                 line_array[1]);  //16 bit reg with b breaked like b[bx]
 
     int value = return_value();
-    if(value==-1)
-        return -1;
     if (x != bit16_array.end() || x1 != bit8_array.end()) { //is 16 or 8 bit reg?
         if (x != bit16_array.end()) {
             unsigned short *ptr;
@@ -1440,7 +1293,7 @@ int shr(int i) {
 
         }
     } else
-        return -1;
+    {cout<<"Error in line : "<<uuuuu; exit(1);}
     return 0;
 }
 int shl(int i) {
@@ -1476,8 +1329,6 @@ int shl(int i) {
                                 line_array[1]);  //16 bit reg with b breaked like b[bx]
 
     int value = return_value();
-    if(value==-1)
-        return -1;
     if (x != bit16_array.end() || x1 != bit8_array.end()) {  //is 16 or 8 bit reg?
         if (x != bit16_array.end()) {
             unsigned short *ptr;
@@ -1536,7 +1387,7 @@ int shl(int i) {
         memory[keep_index] = tail;
         if (keep_index + 1 < (pow(2, 16))  && (line_array[1].at(0) == '['||line_array[1][0]=='w'))
             memory[keep_index + 1] = (deger >> 8);  //the most 8 significant push operation
-    } else return -1;
+    } else {cout<<"Error in line : "<<uuuuu; exit(1);}
     return 0;
 }
 int inc_dec(int i){  //is it incremant or decremant operation
@@ -1598,12 +1449,12 @@ int inc_dec(int i){  //is it incremant or decremant operation
                 location=*get8Bit(line_array[1].substr(line_array[1].find_last_of('[')+1,line_array[1].find_last_of(']')));
             else
                 location=calculate_index(1);
-            if(location==-1) return -1;
+            if(location==-1) {cout<<"Error in line : "<<uuuuu; exit(1);}
             memory[location]+=i;
             change_flags_only_one_paramether(memory[location]);
         }
         else{
-            int location=calculate_index(1); if(location==-1)return -1;
+            int location=calculate_index(1);
             int value=memory[location]+((location+1)<(2<<15))?(memory[location+1]<<8) : 0;
             value+=i;
             change_flags_only_one_paramether(value);
@@ -1628,8 +1479,8 @@ int inc_dec(int i){  //is it incremant or decremant operation
             memory[index]=last_8bit(value);
             if((index+1)<(2<<15))
                 memory[index+1]=(value>>8);
-        }else return -1;
-    }else return -1;
+        }else {cout<<"Error in line : "<<uuuuu; exit(1);}
+    }else {cout<<"Error in line : "<<uuuuu; exit(1);}
     return 0;
 }
 int rcl(int i) {
@@ -1665,8 +1516,6 @@ int rcl(int i) {
                                 line_array[1]);
 
     int value = return_value();
-    if(value==-1)
-        return -1;
     if (x != bit16_array.end() || x1 != bit8_array.end()) { //is it 16 or 8 bit register
         if (x != bit16_array.end()) {
             unsigned short *ptr;
@@ -1734,7 +1583,7 @@ int rcl(int i) {
             memory[*ptr] = deger;  //push process
         }
     } else if ((line_array[1].at(0) == '[' || line_array[1][0]=='w' || line_array[1][0]=='b')&&( line_array[1].at(line_array[1].size() - 1) == ']')){
-        int location = calculate_index(1); int deger=0; if(location==-1)return -1;
+        int location = calculate_index(1); int deger=0;
         if((line_array[1].at(0) == '[' || line_array[1][0]=='w')&&(line_array[1].at(line_array[1].size() - 1) == ']')) //is it 16 bit process
             deger    = memory[location] + (location + 1 < (pow(2, 16))) ? (memory[location + 1] << 8) : 0;
         else deger=memory[location]; //else 8 bit process
@@ -1774,7 +1623,7 @@ int rcl(int i) {
 
 
     } else
-        return -1;
+    {cout<<"Error in line : "<<uuuuu; exit(1);}
     return 0;
 }
 int push(int i) {
@@ -1783,13 +1632,13 @@ int push(int i) {
         int head_8bit = (return_value_of_right_hand_side(1) >> 8);
         int value = return_value_of_right_hand_side(1);
         if(value==-1)
-            return -1;
+        {cout<<"Error in line : "<<uuuuu; exit(1);}
         int tail_8 =last_8bit( value);
         memory[sp] = head_8bit;
         memory[sp - 1] = tail_8;
         sp -= 2;
     } else
-        return -1;
+    {cout<<"Error in line : "<<uuuuu; exit(1);}
     return 0;
 }
 int nop(int i) {//does nothing
@@ -1800,13 +1649,13 @@ int pop(int i) { // returns value in the top of the stack
     unsigned short *ptr;
     ptr = return_pointer(line_array[1]);
     for (int p = 1; p < line_array.size(); p++) {
-        if (regbul != bit16_array.end()) {
+        if (regbul != bit16_array.end() && sp<0xFFFE) {
             int head_8bit = (memory[sp + 2]<<8);
             int tail_8bit = memory[sp + 1];
             *ptr = head_8bit + tail_8bit;
             memory[sp + 2] = memory[sp + 1] = 0;
             sp += 2;
-        } else return -1;
+        } else {cout<<"Error in line : "<<i; exit(1);}
     }
     return 0;
 }
@@ -1874,8 +1723,6 @@ int compare(int i) {
         if ((bit16_with_breaked != bit16_array_with_breaked.end() || ((bit16_with_w_breaked != bit16_array_with_w_and_breaked.end()) && line_array[2] != "b"))) {
             is_bit16=true;
             int oo = return_value_of_right_hand_side(2);
-            if (oo == -1)
-                return -1;
             string ss = line_array[1].substr(line_array[1].find_first_of('[')+1,line_array[1].length());ss=ss.substr(0,ss.find_last_of(']'));
             unsigned short *ptr; ptr=return_pointer(ss);
             int value = memory[*ptr] + (((*ptr + 1) < (pow(2, 16))) ? ( (memory[*ptr + 1] << 8) ): 0);
@@ -1883,8 +1730,6 @@ int compare(int i) {
         } else if ((bit16_with_b_breaked != bit16_array_with_b_and_breaked.end() && line_array[2] != "w")) {
             is_bit8=true;
             int oo = return_value_of_right_hand_side(2);
-            if (oo == -1)
-                return -1;
             string s = "";s.push_back(line_array[1].at(2));s.push_back(line_array[1].at(3));
             unsigned short *ptr; ptr=return_pointer(s);
             change_flags(memory[*ptr], oo);
@@ -1893,16 +1738,12 @@ int compare(int i) {
         if (line_array[1].at(1) != 'l' && line_array[1].at(1) != 'h') {
             is_bit16=true;
             int deger = return_value_of_right_hand_side(2);
-            if (deger == -1)
-                return -1;
             unsigned short *ptr;
             ptr = return_pointer(line_array[1]);
             change_flags(*ptr, deger);
         } else {
             is_bit8=true;
             int deger = return_value_of_right_hand_side(2);
-            if (deger == -1)
-                return -1;
             unsigned char *ptr;
             ptr = get8Bit(line_array[1]);
             change_flags(*ptr, deger);
@@ -1921,8 +1762,6 @@ int compare(int i) {
         int sayi = stoi(location);
         is_bit16=true;
         int value = return_value_of_right_hand_side(2);
-        if (sayi == -1 || value == -1)
-            return -1;
         if((line_array[1].at(0) == '[' || line_array[1][0]=='w' ))
             change_flags((memory[sayi] + (memory[sayi + 1] << 8)), value);
         else
@@ -1936,8 +1775,6 @@ int compare(int i) {
                 is_bit16=true;
             else is_bit8=true;
             int right_value=return_value_of_right_hand_side(2);
-            if(right_value==-1)
-                return -1;
             value= var_type=="dw" ? (memory[variable_index] + (memory[variable_index+1]<<8)) : memory[variable_index];
             change_flags(value,right_value);
         }else{
@@ -1947,8 +1784,6 @@ int compare(int i) {
                 is_bit16=true;
             value = line_array[1]=="b" ? memory[variable_index] : (memory[variable_index]+(memory[variable_index+1]<<8));
             int right_value=return_value_of_right_hand_side(3);
-            if(right_value==-1)
-                return -1;
             change_flags(value,right_value);
         }
     }
@@ -1959,25 +1794,19 @@ int compare(int i) {
             is_bit8=true;
         else if(line_array[1]=="w")
             is_bit16=true;
-        else return -1;
+        else {cout<<"Error in line : "<<uuuuu; exit(1);}
         int value_right_hand_side = return_value_of_right_hand_side(3);
-        if(value_right_hand_side==-1)
-               return -1;
         int asci=line_array[2][1];
         change_flags(asci,value_right_hand_side);
     } else if (asci >= 48 && asci <= 57)//sayi
     {   is_bit16=is_bit8=true;
         int value_rigth_hand_side = return_value_of_right_hand_side(2);
-        if (value_rigth_hand_side == -1)
-            return -1;
         change_flags(asci, value_rigth_hand_side);
     } else if(line_array[1]=="sp"){
         int value=return_value_of_right_hand_side(2);
-        if(value==-1)
-            return -1;
         change_flags(sp,value);
     }else
-        return -1;
+    {cout<<"Error in line : "<<uuuuu; exit(1);}
     return 0;
 }
 int JZ_JE(int i) { // Jump if zero (Zero flag set)
@@ -1985,7 +1814,7 @@ int JZ_JE(int i) { // Jump if zero (Zero flag set)
         line_array[1].push_back(':');
         vector<string>::iterator o = find(code_array.begin(), code_array.end(), line_array[1]);
         if (o == code_array.end())
-            return -1;
+        {cout<<"Error in line : "<<uuuuu; exit(1);}
         if (ZF)
             p = --o;
     }
@@ -1996,7 +1825,7 @@ int JNE_JNZ(int i) {  //Jump if not zero (Zero flag clear)
         line_array[1].push_back(':');
         vector<string>::iterator o = find(code_array.begin(), code_array.end(), line_array[1]);
         if (o == code_array.end())
-            return -1;
+        {cout<<"Error in line : "<<uuuuu; exit(1);}
         if (!ZF)
             p = --o;
     }
@@ -2007,7 +1836,7 @@ int JA_JNBE(int i) { //Jump if not below or equal (same as JA)
         line_array[1].push_back(':');
         vector<string>::iterator o = find(code_array.begin(), code_array.end(), line_array[1]);
         if (o == code_array.end())
-            return -1;
+        {cout<<"Error in line : "<<uuuuu; exit(1);}
         if (!CF && !ZF)
             p = --o;
     }
@@ -2018,7 +1847,7 @@ int JB_JC_JNAE(int i) { //Jump if not above or equal (same as JB)
         line_array[1].push_back(':');
         vector<string>::iterator o = find(code_array.begin(), code_array.end(), line_array[1]);
         if (o == code_array.end())
-            return -1;
+        {cout<<"Error in line : "<<uuuuu; exit(1);}
         if (CF)
             p = --o;
     }
@@ -2029,7 +1858,7 @@ int JBE(int i) { // Jump if below or equal (if leftOp  rightOp)
         line_array[1].push_back(':');
         vector<string>::iterator o = find(code_array.begin(), code_array.end(), line_array[1]);
         if (o == code_array.end())
-            return -1;
+        {cout<<"Error in line : "<<uuuuu; exit(1);}
         if ((CF || ZF)) {
             p = --o;
         }
@@ -2041,7 +1870,7 @@ int JNB_JAE(int i) { //Jump if not below (same as JAE)
         line_array[1].push_back(':');
         vector<string>::iterator o = find(code_array.begin(), code_array.end(), line_array[1]);
         if (o == code_array.end())
-            return -1;
+        {cout<<"Error in line : "<<uuuuu; exit(1);}
         if (!CF)
             p = --o;
     }
@@ -2052,7 +1881,7 @@ int JNC(int i) {
         line_array[1].push_back(':');
         vector<string>::iterator o = find(code_array.begin(), code_array.end(), line_array[1]);
         if (o == code_array.end())  //is there any label
-            return -1;
+        {cout<<"Error in line : "<<uuuuu; exit(1);}
         if (!CF)
             p = --o;
     }
@@ -2063,7 +1892,7 @@ int JMP(int i) { //jump no need any condition
         line_array[1].push_back(':');
         vector<string>::iterator o = find(code_array.begin(), code_array.end(), line_array[1]);
         if (o == code_array.end()) //is there any label
-            return -1;
+        {cout<<"Error in line : "<<uuuuu; exit(1);}
 
         p = --o;
     }
@@ -2226,7 +2055,7 @@ int return_value_of_right_hand_side(int index) { //this funciton returns the val
         if (var_is)
             return variable_index;
 
-        return -1;
+        cout<<"Error in line : "<<uuuuu; exit(1);
     }
     if (x != bit16_array.end() || x1 != bit8_array.end()) //reg-reg --- mov ax,cx || mov al,cl
     {
@@ -2234,7 +2063,6 @@ int return_value_of_right_hand_side(int index) { //this funciton returns the val
             return *return_pointer(line_array[index]);
         else if(x1 != bit8_array.end() && is_bit8) //is it 8 bit reg
             return *get8Bit(line_array[index]);
-        else return -1;
     }
     if (bit16_with_breaked !=
         bit16_array_with_breaked.end()) //reg-b[reg] ---mov ah, b[bx] ----- //reg-[reg] --mov cx,[bx] -- mov di,[si] -- mov ax,[di] ---//reg-w[reg]-- mov ax, w[bx]
@@ -2261,7 +2089,7 @@ int return_value_of_right_hand_side(int index) { //this funciton returns the val
             else if((gg[gg.size()-1] == 'd' || gg[gg.size()-1] == 'D'))
                  location=stoi(gg);
                 if(location<0 || location>(2<<15))
-                    return -1;
+                {cout<<"Error in line : "<<uuuuu; exit(1);}
             return memory[location];
         } else if (line_array[index].at(0) == 'w' || line_array[index].at(0) == '['){  //is it word size ?
             int location;
@@ -2274,7 +2102,7 @@ int return_value_of_right_hand_side(int index) { //this funciton returns the val
                  location=stoi(gg.substr(0,gg.size()-1));
             }else location=stoi(gg);
             if(location<0 || location>(2<<15))
-                return -1;
+            {cout<<"Error in line : "<<uuuuu; exit(1);}
             value=memory[location]+(memory[location+1]<<8);
             return value;
         }
@@ -2284,7 +2112,7 @@ int return_value_of_right_hand_side(int index) { //this funciton returns the val
             return memory[keep_index] + ((((keep_index + 1) < (pow(2, 16)))) ? (memory[keep_index + 1] << 8): 0);
         else if((is_bit8))
             return memory[keep_index];
-        else return -1;
+        else {cout<<"Error in line : "<<uuuuu; exit(1);}
     }
     else if ((line_array[index] == "w" || line_array[index] == "b" ))// sayı
     {
@@ -2316,7 +2144,7 @@ int return_value_of_right_hand_side(int index) { //this funciton returns the val
         //is it char --  mov ax,'a'
         return asci_value;
     }
-    else return -1;
+    else {cout<<"Error in line : "<<uuuuu; exit(1);}
     return 0;
 }
 void change_flags(int value_1, int value_2) { //change flags with according to in the case of each other
@@ -2370,7 +2198,7 @@ int return_value() {  //retur value for rcl-rcr-shl-shr
             }
         }
         if (value > 31) {
-            return -1;
+            {cout<<"Error in line : "<<uuuuu; exit(1);}
         }
     }
     else {
@@ -2389,7 +2217,7 @@ int return_value() {  //retur value for rcl-rcr-shl-shr
                 }
             }
             if (value > 31) {
-                return -1;
+                {cout<<"Error in line : "<<uuuuu; exit(1);}
             }
         }
     }
@@ -2441,7 +2269,6 @@ int xor_or_and(string s) {
             unsigned short *ptr;
             ptr = return_pointer(line_array[1]);
             int value=return_value_of_right_hand_side(2);
-            if(value==-1)return -1;
             helper_or_and_xor(ptr,value,s);
             change_flags_only_one_paramether(*ptr);
         } else {
@@ -2449,7 +2276,6 @@ int xor_or_and(string s) {
             unsigned char *ptr;
             ptr = get8Bit(line_array[1]);
             int value = return_value_of_right_hand_side(2);
-            if(value==-1)return -1;
             helper_or_and_xor(ptr,value,s);
             change_flags_only_one_paramether(*ptr);
         }
@@ -2491,8 +2317,6 @@ int xor_or_and(string s) {
                  is_bit16=true;
         else is_bit8=true;                                                  //is byte operation ?
         int value = return_value_of_right_hand_side(2);
-        if(value==-1)
-            return -1;
         int k=0;
         if((line_array[1].at(0) == '[' || line_array[1][0]=='w'))
                 k = memory[sayi] + ((sayi + 1 < (pow(2, 16))) ? (memory[sayi + 1] << 8) : 0); //word value
@@ -2543,8 +2367,8 @@ int xor_or_and(string s) {
                 value_of_memory &= *ptr;
             memory[keep_index] = value_of_memory;
             change_flags_only_one_paramether(value_of_memory);
-        }else return -1;
-    }else return -1;
+        }else {cout<<"Error in line : "<<uuuuu; exit(1);}
+    }else {cout<<"Error in line : "<<uuuuu; exit(1);}
     return 0;
 }
 int last_8bit(int o){ //the least significant 8 bit
