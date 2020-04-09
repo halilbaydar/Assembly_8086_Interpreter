@@ -357,7 +357,7 @@ int main(int argc, char *argv[])//main function get the instructions and control
         else if (line_array[0] == "int" && line_array[1] == "20h")//this instructions oversees given instruction is inc
              { return 0; }
         else if (line_array[0] == "code" || (line_array[0].at(line_array[0].size() - 1) == ':'))//this instructions oversees given instruction is inc
-        {}
+        { int yyy=0;}
         else {cout<<"Error in line :"<<i; return 0;}
         //these commands reset all global variables
         line_array.clear();
@@ -675,7 +675,6 @@ void change_flag_acc_to(int byte){
     }
 }
 int mul(int i) {
-    int multiplier = return_value_of_right_hand_side(line_array[1] != "b" || line_array[1] != "w" ? 1 : 2);
     vector<string>::iterator x, y, x1, y1, bit16_with_breaked, bit16_with_b_breaked, bit16_with_w_breaked, reg;
     x = find(bit16_array.begin(), bit16_array.end(), line_array[1]);
     y = find(bit8_array.begin(), bit8_array.end(), line_array[1]);
@@ -1333,12 +1332,18 @@ int shl(int i) {
         if (x != bit16_array.end()) {
             unsigned short *ptr;
             ptr = return_pointer(line_array[1]);  //return reg
-            CF = *ptr & 1;
+            string s=convert_from_decimal_to_binary(*ptr);  //to take the most significant bit, this line convert decimal number into binary form
+            if(s.size()==16)
+                CF = convert_from_decimal_to_binary(*ptr).at(0) - '0';
+            else CF=0;
             *ptr <<= value;
         } else {  //8 bit shl process
             unsigned char *ptr;
             ptr = get8Bit(line_array[1]); //return 8 bi reg
-            CF = *ptr & 1;
+            string s=convert_from_decimal_to_binary(*ptr);  //to take the most significant bit, this line convert decimal number into binary form
+            if(s.size()==8)
+                CF = convert_from_decimal_to_binary(*ptr).at(0) - '0';
+            else CF=0;
             *ptr <<= value;
         }
     } else if (bit16_with_breaked != bit16_array_with_breaked.end() ||
@@ -1349,7 +1354,11 @@ int shl(int i) {
             string s = "";s.push_back(line_array[1].at(2));s.push_back(line_array[1].at(3));
             ptr = return_pointer(s);
             int deger = memory[*ptr] + *ptr + 1 < (pow(2, 16)) ? (memory[*ptr + 1] << 8) : 0;
-            CF = deger & 1; //shl operation
+            bool k = CF;
+            string s_s=convert_from_decimal_to_binary(deger);  //to take the most significant bit, this line convert decimal number into binary form
+            if(s_s.size()==16)
+                CF = convert_from_decimal_to_binary(deger).at(0) - '0';
+            else CF=0;
             deger <<= value;
             int  tail = last_8bit(deger);  //the least significant 8 bit push operation
             memory[*ptr] = tail;
@@ -1360,7 +1369,11 @@ int shl(int i) {
             string s = "";s.push_back(line_array[1].at(2));s.push_back(line_array[1].at(3));
             ptr = return_pointer(s);
             int deger = memory[*ptr];
-            CF = deger & 1; //shl operation
+            bool k = CF;
+            string s_s=convert_from_decimal_to_binary(*ptr);  //to take the most significant bit, this line convert decimal number into binary form
+            if(s_s.size()==8)
+                CF = convert_from_decimal_to_binary(*ptr).at(0) - '0';
+            else CF=0; //shl operation
             deger <<= value;
             memory[*ptr] = deger;  //push
         }
@@ -1369,7 +1382,11 @@ int shl(int i) {
         if((line_array[1].at(0) == '['||line_array[1][0]=='w')&&(line_array[1].at(line_array[1].size() - 1) == ']')) //is it 16 bit operation
             deger = memory[location] + location + 1 < (2 << 15) ? (memory[location + 1] << 8) : 0;
         else deger=memory[location];
-        CF = deger & 1;  //shl process
+        bool k = CF;
+        string s_s=convert_from_decimal_to_binary(deger);  //to take the most significant bit, this line convert decimal number into binary form
+        if(s_s.size()==(line_array[1].at(0) == '['||line_array[1][0]=='w') ? 16 : 8)
+            CF = convert_from_decimal_to_binary(deger).at(0) - '0';
+        else CF=0; //shl process
         deger <<= value;
         int tail = last_8bit(deger);    //the least significant 8 bit push operation
         memory[location] = tail;
@@ -1381,7 +1398,10 @@ int shl(int i) {
                 deger = memory[keep_index];
             else if((line_array[1] == "w"))  //is t it word
                 deger= memory[keep_index] + (keep_index + 1 < (pow(2, 16))) ? (memory[keep_index + 1] << 8) : 0;
-        CF = deger & 1;
+        string s_s=convert_from_decimal_to_binary(deger);  //to take the most significant bit, this line convert decimal number into binary form
+        if(s_s.size()==(line_array[1] == "w") ? 16 : 8)
+            CF = convert_from_decimal_to_binary(deger).at(0) - '0';
+        else CF=0;
         deger <<= value;
         int  tail = last_8bit(deger);  //the least 8 significant bit operation
         memory[keep_index] = tail;
@@ -1633,9 +1653,9 @@ int push(int i) {
         int value = return_value_of_right_hand_side(1);
         if(value==-1)
         {cout<<"Error in line : "<<uuuuu; exit(1);}
-        int tail_8 =last_8bit( value);
-        memory[sp] = head_8bit;
-        memory[sp - 1] = tail_8;
+        int tail_8 =last_8bit(value);
+        memory[sp+1] = head_8bit;
+        memory[sp] = tail_8;
         sp -= 2;
     } else
     {cout<<"Error in line : "<<uuuuu; exit(1);}
@@ -1650,8 +1670,8 @@ int pop(int i) { // returns value in the top of the stack
     ptr = return_pointer(line_array[1]);
     for (int p = 1; p < line_array.size(); p++) {
         if (regbul != bit16_array.end() && sp<0xFFFE) {
-            int head_8bit = (memory[sp + 2]<<8);
-            int tail_8bit = memory[sp + 1];
+            int head_8bit = (memory[sp + 3]<<8);
+            int tail_8bit = memory[sp + 2];
             *ptr = head_8bit + tail_8bit;
             memory[sp + 2] = memory[sp + 1] = 0;
             sp += 2;
@@ -1663,17 +1683,8 @@ char int_21h(int i, ofstream &outFile,ifstream& infile ) {
     if (*pah == 1) { //reads given input from file
         string s;
         getline(cin,s);
-        if(s[0]=='\n')
-        {
-            *pal=13;
-            *pdl = s[0];
-        }
-        else
-        {
             *pal = (unsigned char) s[0];
             *pdl = s[0];
-        }
-
     } else if (*pah == 2) {  //display from the value of dl register  to console
         *pal = *pdl;
         char ch = *pal;
@@ -1798,7 +1809,7 @@ int compare(int i) {
         int value_right_hand_side = return_value_of_right_hand_side(3);
         int asci=line_array[2][1];
         change_flags(asci,value_right_hand_side);
-    } else if (asci >= 48 && asci <= 57)//sayi
+    } else if (asci >= 48 && asci <= 57 && line_array[0][0]!='\'')//sayi
     {   is_bit16=is_bit8=true;
         int value_rigth_hand_side = return_value_of_right_hand_side(2);
         change_flags(asci, value_rigth_hand_side);
@@ -2260,9 +2271,6 @@ int xor_or_and(string s) {
                                 line_array[1]);
     bit16_with_b_breaked = find(bit16_array_with_b_and_breaked.begin(), bit16_array_with_b_and_breaked.end(),
                                 line_array[1]);
-
-
-
     if (x != bit16_array.end() || x1 != bit8_array.end()) {  //reg is 8 or 16 bit
         if (x != bit16_array.end()) {
             is_bit16=true;
@@ -2399,7 +2407,7 @@ string convert_from_decimal_to_binary(int value) {  //convert value into decimal
     return s;
 }
 bool is_it_hex(string s){
-    if(s[s.size()-1]=='h' || s[s.size()-1]=='H')
+    if(s[s.size()-1]=='h' || s[s.size()-1]=='H' || s[0]=='0')
         return true;
     for (int i = 0; i < s.size(); ++i) {
         if(i==s.size()-1){
