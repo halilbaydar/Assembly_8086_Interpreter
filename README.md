@@ -1,4 +1,4 @@
-# halilbaydar-Assembly 8086 Compiler
+# halilbaydar-Assembly 8086 Interpreter
 CmpE_230_first_project
 CMPE	230	Systems	Programming
 Project	 (due	March	23th)
